@@ -1,0 +1,16 @@
+{
+    "data": {
+        "twitter": {
+            "consumer_key": "VTRlq8JKKjUA3hBOv2UvIfWmD",
+            "consumer_secret": "jL6pVnBKNqe1rioGI0P1KILOtCPo1LzvkDq7zkiRJotGJlogU9",
+            "access_token_key": "421726366-edg8tkUnSaiD8ZEioqh5feouhrbiIVVNCrf7DTrx",
+            "access_token_secret": "SbJ0Ckp5cP7d2YzKIyEXSmXYurOGKVVV4gDwvm7oa8bqT"
+        },
+        "facebook": {
+
+        },
+        "yelp": {
+
+        }
+    }
+}
