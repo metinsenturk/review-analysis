@@ -18,62 +18,68 @@ class main:
             access_token_secret=credentials['twitter']['access_token_secret'])
         self.yelp_api = YelpAPI(credentials['yelp']['api_key'])
         self.facebook_api = facebook.GraphAPI(access_token=credentials['facebook']['page_access_token'])
-
+           
     def tw_verify_credentials(self):
         print(self.twitter_api.VerifyCredentials())
     
     def tw_get_statuses(self, user_list):
         for username in user_list:
-            with open(f'datasets/tw_{username}.json', 'w') as f:
-
+            with open(f'datasets/tw_{username}_statuses.json', 'w') as f:
                 try:
                     f.write('{"statuses": [')
                     max_id = 0
                     while(True):
                         # status scheme available at: https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-user_timeline.html
-                        statuses = self.twitter_api.GetUserTimeline(screen_name=username,count=100, max_id=max_id)
+                        statuses = self.twitter_api.GetUserTimeline(
+                            screen_name=username, 
+                            count=100, 
+                            max_id=max_id)
                         
                         if len(statuses) == 1 and statuses[0].id == max_id:
                             break
                         else:
-                            for status in statuses:                            
-                                f.write("%s," % json.dumps(status._json))
+                            for status in statuses:    
+                                if status.id != max_id:                        
+                                    f.write("%s," % json.dumps(status._json))
                         
                             max_id = statuses[-1].id
                 finally:
-                    f.seek(f.tell() - 1, os.SEEK_SET)
+                    max_id != 0 and f.seek(f.tell() - 1, os.SEEK_SET)
                     f.write("]}")
 
-    def tw_get_search(self, keyword_list):
-        with open(f'datasets/tw_search_results.json', 'w') as f:
-            try:
-                f.write('{"statuses": [')
-                for keyword in keyword_list:
+    def tw_get_search(self, user_list):
+        for user_name, keyword_list in user_list.items():
+            with open(f'datasets/tw_{user_name}_searches.json', 'w') as f:
+                try:
+                    f.write('{"statuses": [')
                     max_id = 0
-                    until = datetime.date.today() - datetime.timedelta(days=7)
-                    while(True):
+                    user = self.twitter_api.GetUser(screen_name=user_name) 
+                    keyword_list.append(f'{user.name}')
+                    keyword_list.append(f'{user_name}')
+                    keyword_list.append(f'#{user_name}')
+                    keyword_list.append(f'@{user_name}')
+                    term = '{}'.format(' OR '.join(keyword_list))                       
+                    while(True):                        
                         # status scheme available at: https://developer.twitter.com/en/docs/tweets/search/api-reference/get-search-tweets.html
                         statuses = self.twitter_api.GetSearch(
-                            keyword.encode('utf-8'),
+                            term=term.encode('utf-8'),
                             geocode=None,
-                            count=100, 
-                            until=until.isoformat(), 
+                            count=100,
                             max_id=max_id)
-                        
+
                         if (len(statuses) == 1 and statuses[0].id == max_id) or statuses == []:  
                             break
                         else:
                             for status in statuses:                                
                                 if status.id != max_id:
-                                    status_text = json.dumps(status._json)
+                                    """status_text = json.dumps(status._json)
                                     status_json = json.loads(status_text)
-                                    status_json['keyword'] = keyword
-                                    f.write("%s," % json.dumps(status_json))
-                        
+                                    status_json['keyword'] = keyword"""
+                                    f.write("%s," % json.dumps(status._json))
                             max_id = statuses[-1].id
-            finally:         
-                f.seek(f.tell() - 1, os.SEEK_SET)
-                f.write("]}")
+                finally:         
+                    max_id != 0 and f.seek(f.tell() - 1, os.SEEK_SET)
+                    f.write("]}")
 
     def yp_get_business(self, business_list):
         for business in business_list:
@@ -84,11 +90,12 @@ class main:
                     offset = 0
                     while(True):
                         try:
-                            # https://www.yelp.com/developers/documentation/v3/business_search
+                            # status scheme available at: # https://www.yelp.com/developers/documentation/v3/business_search
                             competitors = self.yelp_api.search_query(
                                 longitude=branch['coordinates']['longitude'],
                                 latitude=branch['coordinates']['latitude'],
                                 radius=40000,
+                                # categories='bars,french'
                                 sort_by='distance',
                                 limit=50,
                                 offset=offset)
@@ -98,7 +105,7 @@ class main:
                         except self.yelp_api.YelpAPIError:
                             break
                 finally:
-                    f.seek(f.tell() - 1, os.SEEK_SET)
+                    offset != 0 and f.seek(f.tell() - 1, os.SEEK_SET)
                     f.write("]}")            
 
     def yp_get_business_reviews(self, business_list):
@@ -118,7 +125,7 @@ class main:
                         else:
                             break
                 finally:
-                    f.seek(f.tell() - 1, os.SEEK_SET)
+                    offset != 0 and f.seek(f.tell() - 1, os.SEEK_SET)
                     f.write("]}")              
 
     def yp_get_business_reviews2(self, business_list):
@@ -151,7 +158,7 @@ class main:
                         else:
                             break
                 finally:
-                    f.seek(f.tell() - 1, os.SEEK_SET)
+                    start != 0 and f.seek(f.tell() - 1, os.SEEK_SET)
                     f.write("]}")
 
             with open(f'datasets/yp_businesses.json', 'a') as f:
@@ -199,8 +206,36 @@ class main:
 
 
 if __name__ == '__main__':
+    twitter_users = [
+        'JakesInDelMar',
+        'SunnysideResort',
+        'dukeshb',
+        'DukesLaJolla',
+        'DukesMalibu',
+        'DukesBeachHouse',
+        'DukesInKauai',
+        'DukesWaikiki',
+        'hulagrillwaiks',
+        'HulaGrillMaui',
+        'KeokisParadise',
+        'LeilanisMaui'
+    ]
+    twitter_user_searches = {
+        'JakesInDelMar': [],
+        'SunnysideResort': [],
+        'dukeshb': [],
+        'DukesLaJolla': [],
+        'DukesMalibu': [],
+        'DukesBeachHouse': [],
+        'DukesInKauai': [],
+        'DukesWaikiki': [],
+        'hulagrillwaiks': [],
+        'HulaGrillMaui': [],
+        'KeokisParadise': [],
+        'LeilanisMaui': []
+    }
     yelp_branches = [
-        # 'kimos-maui-lahaina', 
+        'kimos-maui-lahaina', 
         'sunnyside-tahoe-city-2', 
         'dukes-huntington-beach-huntington-beach-2', 
         'dukes-la-jolla-la-jolla',
@@ -215,8 +250,7 @@ if __name__ == '__main__':
     ]
     a = main()
     # a.verify_twitter()
-    # a.tw_get_statuses(['KimosRestaurant',])
-    # a.tw_get_search(['kimos restaurant', 'kimo\'s restaurant']) #, 'Old Lahaina Town', 'Lava Flow'])
-    # a.yp_get_business(yelp_branches)
-    a.yp_get_business_reviews2(yelp_branches)
+    # a.tw_get_statuses(twitter_users)
+    a.tw_get_search(twitter_user_searches)
+    # a.yp_get_business_reviews2(yelp_branches)
     # a.fb_()
