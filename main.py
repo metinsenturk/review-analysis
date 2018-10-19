@@ -166,7 +166,9 @@ class main:
                 f.write("%s" % json.dumps(obj))
 
     def fb_(self):
-        # [W0612]
+        """
+        Incomplete.
+        """        
         metric_open_graph_rating = [
             'created_time',
             'has_rating',
@@ -251,6 +253,6 @@ if __name__ == '__main__':
     a = main()
     # a.verify_twitter()
     # a.tw_get_statuses(twitter_users)
-    a.tw_get_search(twitter_user_searches)
+    # a.tw_get_search(twitter_user_searches)
     # a.yp_get_business_reviews2(yelp_branches)
     # a.fb_()
