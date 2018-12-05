@@ -8,6 +8,18 @@ Stopwords: are removed.
 Lemmatized: words in third person changed to first and verbs past and future tenses to present.
 Stemmed: words reduced to root form.
 
+## Todo Lists
+
+### 0.0.1 Todo List
+
+- [ ] Determine a group of restaurants for analysis
+- [ ] Applying topic modeling to the group
+
+## Releases
+
+- [ ] 0.0.1 Preprocessing
+- [ ] 1.0.0 Sentiment & Topic Modeling for Reviews
+
 ## Objectives
 
 The review analysis will be in yelp dataset competion. More information about the competition can be found at [here](https://www.yelp.com/dataset/challenge).
