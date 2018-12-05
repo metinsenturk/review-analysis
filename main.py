@@ -1,5 +1,6 @@
 import utilities
 import twitter
+from searchtweets import load_credentials, ResultStream, gen_rule_payload
 from yelpapi import YelpAPI
 import facebook
 from bs4 import BeautifulSoup
@@ -11,6 +12,9 @@ import datetime
 class main:
     def __init__(self):
         credentials = utilities.get_credidentials()
+        self.twitter_premium_api = load_credentials(
+            filename="twitter_keys.yaml", 
+            yaml_key="search_tweets_api_30day")
         self.twitter_api = twitter.Api(
             consumer_key=credentials['twitter']['consumer_key'],
             consumer_secret=credentials['twitter']['consumer_secret'],
@@ -80,6 +84,53 @@ class main:
                 finally:         
                     max_id != 0 and f.seek(f.tell() - 1, os.SEEK_SET)
                     f.write("]}")
+
+    def tw_get_premium_search(self, keyword: str):
+        with open(f'datasets/tw_{keyword.lower()}_searches_premium.json', 'w') as f:
+            try:
+                f.write('{"statuses": [')
+
+                rule = gen_rule_payload(
+                    pt_rule="near:\"New York, NY\" within:50mi".format(),
+                    results_per_call=100,
+                    from_date="2018-07-01",
+                    to_date="2018-10-01"
+                )
+
+                rule = gen_rule_payload(
+                    pt_rule="place:\"New York, NY\"".format(),
+                    results_per_call=100,
+                    from_date=(datetime.date.today() - datetime.timedelta(31)).isoformat(),
+                    to_date=datetime.date.today().isoformat()
+                )
+
+                next_token = None
+                while True:                                        
+                    results = ResultStream(
+                        rule_payload=rule, 
+                        **self.twitter_premium_api)
+                    results.next_token = next_token
+                    
+                    tweets = []
+
+                    try:
+                        tweets = list(results.stream())
+                    except Exception as ex:
+                        print(str(ex))
+
+                    for tweet in tweets:                                
+                        f.write("%s," % json.dumps(tweet))
+                    
+                    if results.next_token is None:
+                        break
+                    else:
+                        next_token = results.next_token
+                
+                next_token is not None and f.seek(f.tell() - 1, os.SEEK_SET)
+                f.write("]}")
+
+            except Exception as ex:
+                print("Error:\n" + str(ex))
 
     def yp_get_business(self, business_list):
         for business in business_list:
@@ -255,6 +306,7 @@ if __name__ == '__main__':
     a = main()
     # a.verify_twitter()
     # a.tw_get_statuses(twitter_users)
-    a.tw_get_search(twitter_user_searches)
+    # a.tw_get_search(twitter_user_searches)
     # a.yp_get_business_reviews2(yelp_branches)
     # a.fb_()
+    a.tw_get_premium_search("arianagrande")
