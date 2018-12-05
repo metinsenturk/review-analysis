@@ -1,10 +1,11 @@
-# parameters.json
+# directories
 .vscode/
 __pycache__/
-datasets/
+data/
+
+/ parameters
 parameters.json
-.DS_Store
 twitter_keys.yaml
 
-.vscode
-__pycache__
+# others
+.DS_Store
