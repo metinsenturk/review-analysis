@@ -39,7 +39,7 @@ for review in reviews:
     #lem = WordNetLemmatizer()
 
     #lem.lemmatize(word, "v")
-      
+    
     # loop for stemming each word 
     # in string array at ith row     
     review = [ps.stem(word) for word in review 
