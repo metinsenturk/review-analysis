@@ -5,6 +5,7 @@ import json
 
 from textblob import TextBlob
 from textblob import Word
+import spacy
 import nltk
 from nltk.stem import PorterStemmer
 try:
@@ -12,15 +13,30 @@ try:
 except:
     nltk.download('stopwords')
 
+class nlp_preprocessing:
+    def __init__(self, *args, **kwargs):
+        self.nlp = spacy.load('en', disable=['parser', 'ner'])
+
+    def lemmatization(self, texts, tags=['NOUN', 'ADJ']):
+        nlp = self.nlp
+
+        output = []
+        for text in texts:
+             doc = nlp(" ".join(text)) 
+             output.append([token.lemma_ for token in doc if token.pos_ in tags])
+
+        return output
+        
+
 class preprocessing:
     def __init__(self, text_list):
-        freq = list()
-        rare = list()
         word_list = ' '.join(text_list).split()
+        self.stopwords_list = set(stopwords.words('english'))
+        word_list = [x for x in word_list if x not in self.stopwords_list]
 
-        self.freq = pd.Series(word_list).value_counts()[:10]
+        freq = pd.Series(word_list).value_counts()[:10]
         self.freq = list(freq.index)
-        self.rare = pd.Series(word_list).value_counts()[-10:]
+        rare = pd.Series(word_list).value_counts()[-10:]
         self.rare = list(rare.index)
 
         self.st = PorterStemmer()    
@@ -37,9 +53,8 @@ class preprocessing:
     def shortwords(self, text):        
         return (' '.join([w for w in text.split() if len(w)>2]))
 
-    def stopwords(self, text):
-        stopwords_list = set(stopwords.words('english'))
-        text = ' '.join(x for x in text.split() if x not in stopwords_list)
+    def stopwords(self, text):        
+        text = ' '.join(x for x in text.split() if x not in self.stopwords_list)
         return(text)
 
     def freqwords(self, text):
@@ -48,6 +63,7 @@ class preprocessing:
     
     def rarewords(self, text):
         text = " ".join(x for x in text.split() if x not in self.rare)
+        return(text)
 
     def spellcheck(self, text):
         return(str(TextBlob(text).correct()))
