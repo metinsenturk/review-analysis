@@ -4,8 +4,8 @@ __pycache__/
 data/
 
 / parameters
-parameters.json
-twitter_keys.yaml
+src/parameters.json
+src/twitter_keys.yaml
 
 # others
 .DS_Store
