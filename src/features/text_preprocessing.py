@@ -29,13 +29,15 @@ class nlp_preprocessing:
         
 
 class preprocessing:
-    def __init__(self, text_list):
-        word_list = ' '.join(text_list).split()
+    def __init__(self, text_list: list):
         self.stopwords_list = set(stopwords.words('english'))
+        
+        word_list = ' '.join(text_list).split()
         word_list = [x for x in word_list if x not in self.stopwords_list]
 
         freq = pd.Series(word_list).value_counts()[:10]
         self.freq = list(freq.index)
+        
         rare = pd.Series(word_list).value_counts()[-10:]
         self.rare = list(rare.index)
 

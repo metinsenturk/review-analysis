@@ -2,10 +2,14 @@
 .vscode/
 __pycache__/
 data/
+**/__pycache__/
 
-/ parameters
-src/parameters.json
-src/twitter_keys.yaml
+# logs
+src/*.log
+
+# parameters
+src/data/parameters.json
+src/data/twitter_keys.yaml
 
 # others
 .DS_Store
