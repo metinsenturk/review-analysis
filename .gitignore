@@ -1,12 +1,13 @@
 # directories
 .vscode/
-data/
-!data/*/.gitkeep
 __pycache__/
-**/__pycache__/
+
+# files
+/data/**/*.*
+!/data/**/*.gitkeep
 
 # logs
-src/*.log
+*.log
 
 # parameters
 src/data/parameters.json
