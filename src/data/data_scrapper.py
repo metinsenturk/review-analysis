@@ -1,5 +1,6 @@
 # system imports
 import os
+import sys
 import json
 import datetime
 import csv
@@ -16,7 +17,7 @@ from searchtweets import load_credentials, ResultStream, gen_rule_payload
 
 ## folder imports
 from data import folder_paths as fp
-from data import credentials
+from data.credentials import get_credidentials
 
 topic = {
     "price",
@@ -66,15 +67,22 @@ twitter_user_searches = {
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 hdlr = logging.FileHandler("logs_scrapper.log")
 hdlr.setFormatter(formatter)
 logger.addHandler(hdlr)
 
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.INFO)
+logger.addHandler(handler)
+
 data_path = "././data/raw"
 
 yelp_branches = [
     'kimos-maui-lahaina',
+    'leilanis-lahaina-2',
+    'hula-grill-kaanapali-lahaina-2',
     'sunnyside-tahoe-city-2',
     'dukes-huntington-beach-huntington-beach-2',
     'dukes-la-jolla-la-jolla',
@@ -83,9 +91,7 @@ yelp_branches = [
     'dukes-kauai-lihue-3',
     'dukes-waikiki-honolulu-2',
     'hula-grill-waikiki-honolulu-3',
-    'hula-grill-kaanapali-lahaina-2',
     'keokis-paradise-koloa',
-    'leilanis-lahaina-2'
 ]
 
 class scrappers:
@@ -104,7 +110,7 @@ class scrappers:
             access_token_secret=credentials['twitter']['access_token_secret'])
         self.yelp_api = YelpAPI(credentials['yelp']['api_key'])
         self.__data_path = "../data/raw"
-        logger.info("initialization compeleted.")
+        logger.info("initiation started.")
 
     def tw_verify_credentials(self):
         obj = self.twitter_api.VerifyCredentials()
@@ -253,21 +259,25 @@ class scrappers:
         """
         Gets business list in consideration to the existing business list file. Adds any additional business, if it is not recorded yet.
         """
-        for business in business_list:  
-            file_path = fp.yp_raw_competitors(self.data_path)
-            index_list = []
-            existing_list = []
-            new_list = []
-            
-            if os.path.exists(file_path):
-                with open(file_path, 'r+') as f:
-                    current_file = f.readlines()
-                    if len(current_file) > 0:
-                        existing_list = json.loads(current_file[0])
-                        index_list = [_business["alias"] for _business in existing_list]
-                      
-            with open(file_path, 'w') as f:
+        file_path = fp.yp_raw_competitors(self.data_path)
+        index_list = []
+        existing_list = []  
+        """
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as f:
+                current_file = f.readlines()
+                if len(current_file) > 0:
+                    existing_list = json.loads(current_file[0])
+                    index_list = [_business["alias"] for _business in existing_list]
+                    logger.info(f"existing file found: {len(index_list)} total entries")
+        """
+        with open(file_path, 'w') as f:
+            # find businesses
+            for business in business_list:
+                new_list = []
+                
                 try:
+                    logger.info(f"import started for : {business}")
                     branch = self.yelp_api.business_query(business)
                     offset = 0
                     while(True):
@@ -282,19 +292,25 @@ class scrappers:
                                 limit=50,
                                 offset=offset)
                             
-                            # todo: add alias name for distance measurement as dist_to_alias
+                            # add alias name for distance measurement as dist_to_alias
                             businesses = competitors["businesses"]
-                            [i.update({"dist_to_alias": business}) for i in businesses]
-                            new_list.extend([i for i in businesses if i["alias"] not in index_list])                            
+                            [i.update({"dist_to_alias": business}) for i in businesses]  
+
+                            for i in businesses:
+                                if i['alias'] not in index_list:
+                                    new_list.append(i)
+                                    index_list.append(i['alias'])
+                            
                             offset = offset + 50
                         except self.yelp_api.YelpAPIError:
                             break
                   
                 finally:
-                    if len(new_list) > 0:
-                        existing_list.extend(new_list)
-                    
-                    json.dump(existing_list, f)
+                    existing_list.extend(new_list)
+                    logger.info(f"import completed. existing: {len(existing_list)} new: {len(new_list)}")
+            
+            # saving into file
+            json.dump(existing_list, f)
                     
     def yp_get_business_reviews(self, business_list):
         """
