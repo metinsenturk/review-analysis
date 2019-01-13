@@ -1,7 +1,8 @@
 # directories
 .vscode/
-__pycache__/
 data/
+!data/*/.gitkeep
+__pycache__/
 **/__pycache__/
 
 # logs
