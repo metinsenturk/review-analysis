@@ -28,8 +28,8 @@ logger.info("app started")
 
 def get_competitor_reviews(start_index, end_index):
     sc = scrappers()
-    # sc.yp_get_competitors(yelp_branches)
-    # sc.yp_get_competitor_reviews(start_index=start_index, end_index=end_index)
+    sc.yp_get_competitors(yelp_branches)
+    sc.yp_get_competitor_reviews(start_index=start_index, end_index=end_index)
     print("helo")
 
 def view_current_businesses():
