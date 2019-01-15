@@ -2,6 +2,7 @@
 import os
 import sys
 import logging
+import argparse
 
 # relative import hack which I don't like :/
 # os.chdir(sys.path[0])
@@ -26,9 +27,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 logger.info("app started")
 
-def get_competitor_reviews(start_index, end_index):
+def get_competitor_reviews(start_index, end_index, dw_competitors=False):
     sc = scrappers()
-    sc.yp_get_competitors(yelp_branches)
+
+    if dw_competitors:
+        sc.yp_get_competitors(yelp_branches)
+    
     sc.yp_get_competitor_reviews(start_index=start_index, end_index=end_index)
     print("helo")
 
@@ -110,8 +114,21 @@ def topic_from_file(filepath):
 
 
 if __name__ == '__main__':
-    view_current_businesses()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--starti",
+        type=int,
+        default=0,
+        help="start index of the competitors data."
+    )
+    parser.add_argument(
+        "--endi",
+        type=int,
+        default=1,
+        help="end index of the competitors data."
+    )
+
+    flags, unparsed = parser.parse_known_args()
+
     if input("Press any key to start..") is not None:
-        if len(sys.argv) > 0:
-            x, y = sys.argv[1], sys.argv[2]
-            get_competitor_reviews(int(x), int(y))
+        get_competitor_reviews(flags.starti, flags.endi)
