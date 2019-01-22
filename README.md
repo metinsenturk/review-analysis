@@ -20,6 +20,12 @@ Stemmed: words reduced to root form.
 - [ ] 0.0.1 Preprocessing
 - [ ] 1.0.0 Sentiment & Topic Modeling for Reviews
 
+## Bugs
+
+- [ ] Subfolder paths does not match in another computer. Ex; ././data/  -> ../data/
+- [ ] Folder path problem effects log writing
+- [ ] Import causes errors
+
 ## Objectives
 
 The review analysis will be in yelp dataset competion. More information about the competition can be found at [here](https://www.yelp.com/dataset/challenge).
