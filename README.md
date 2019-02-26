@@ -1,6 +1,14 @@
 # Review Analysis
 
-Extracting social data from multiple resources.
+Reviews are important aspect of a busines. Customers leave a review to comment and share their point of view of the business in terms of their observiations on business's channels such as staffing, quality of service, ambience, customer service, and so on.
+
+In this project, we are observing the business in terms of reviews. We use natural language processing techniques (NLP) to analyze reviews in order to extract topics and the sentiment of the topics.
+
+## Exploratory Data Analysis
+
+### Overall Analysis of the Businesses
+
+Business is examined on various aspects.
 
 ## Data Preprocessing
 Tokenization: splitting to sentenses and to words. lowercasing and removing punctuation.

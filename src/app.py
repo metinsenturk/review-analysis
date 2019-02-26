@@ -33,7 +33,10 @@ def get_competitor_reviews(start_index, end_index, dw_competitors=False):
     if dw_competitors:
         sc.yp_get_competitors(yelp_branches)
     
-    sc.yp_get_competitor_reviews(start_index=start_index, end_index=end_index)
+    try:
+        sc.yp_get_competitor_reviews(start_index=start_index, end_index=end_index)
+    except Exception as ex:
+        logger.warning("error: " + ex)
     print("helo")
 
 def view_current_businesses():

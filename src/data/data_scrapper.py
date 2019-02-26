@@ -3,6 +3,8 @@ import os
 import sys
 import json
 import datetime
+import random
+import time
 import csv
 import logging
 
@@ -420,6 +422,11 @@ class scrappers:
                 except Exception as ex:
                     logger.warning(f"error: alias: {business} index: {current_index} total reviews cnt: {cnt_imported}")
                     logger.warning(f"error message: {ex}")
+                    logger.warning("Let me sleep for some time..")
+                    second = int(round(random.expovariate(1) * 100))
+                    time.sleep(second)
+                    logger.warning(f"{second} seconds slept, now back on scrapping..")
+                    continue
 
     def yp_get_business_reviews2(self, business_list):
         """
