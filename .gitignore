@@ -2,9 +2,12 @@
 .vscode/
 __pycache__/
 
-# files
+# data files
 /data/**/*.*
 !/data/**/*.gitkeep
+
+# model files
+/model/*.*
 
 # logs
 *.log
