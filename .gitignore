@@ -10,8 +10,11 @@ data/**/*.*
 model/*.*
 !/model/*.gitkeep
 
-# notebooks
+# notebooks .. this doesn't work :/
+.ipynb_checkpoints
 .ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+*/*/.ipynb_checkpoints/*
 
 # logs
 *.log
