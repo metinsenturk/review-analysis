@@ -3,11 +3,15 @@
 __pycache__/
 
 # data files
-/data/**/*.*
-!/data/**/*.gitkeep
+data/**/*.*
+!data/**/*.gitkeep
 
 # model files
-/model/*.*
+model/*.*
+!/model/*.gitkeep
+
+# notebooks
+.ipynb_checkpoints/
 
 # logs
 *.log

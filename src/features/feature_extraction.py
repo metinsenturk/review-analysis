@@ -1,43 +1,54 @@
-import gensim
-from gensim import corpora
-from gensim.test.utils import common_texts
-from gensim.corpora import Dictionary
-from gensim.corpora.dictionary import Dictionary
-from gensim.test.utils import datapath
+import numpy as np
+import pandas as pd
 
-class model:
-    def __init__(self): 
-        super()
+from nltk import word_tokenize, sent_tokenize
+from nltk import WordNetLemmatizer, PorterStemmer
+from nltk.corpus import stopwords
+from string import punctuation
+
+lemmatizer = WordNetLemmatizer()
+porter = PorterStemmer()
+stops = stopwords.words('english')
+
+def _processing(word):
+    """ remove punctuation and stopwords from sentences. """
+    word = word.lower()
+    if word not in stops and word not in punctuation:
+        return porter.stem(lemmatizer.lemmatize(word))
+
+def get_sent_tokens(doc: str):
+    """ get str documents and returns sent tokens as list. """
+    return sent_tokenize(doc)
+
+def get_word_tokens(doc: str):
+    """ get str documents and return word tokens as list. """
+    return word_tokenize(doc)
+
+def get_norm_tokens(doc: list, stemming=True, lemmatizer=True, lower=True, punctuation=True, stopwords=True):
+    """ gets a *list* of words and returns normalized versions of the words. """
+    for word in doc:
+        if stopwords:
+            if word in stops:
+                continue
+            else:
+                pass
+
+        if punctuation:
+            if word in punctuation:
+                continue
+            else:
+                pass
+
+        if lower:
+            word = word.lower()
+        
+        if lemmatizer:
+            word = lemmatizer.lemmatize(word)
+
+        if stemming:
+            word = porter.stem(word)
     
-    def model_save(self, lda_model):
-        temp_file = datapath("model")
-        lda_model.save(temp_file)
+    return doc
 
-    def model_load(self):
-        temp_file = datapath("model")
-        LDA = gensim.models.ldamodel.LdaModel
-        lda_model = LDA.load(temp_file)
 
-        return lda_model
 
-    def model(self, texts_list):
-        dictionary = corpora.Dictionary(texts_list)
-        doc_term_matrix = [dictionary.doc2bow(rev) for rev in texts_list] 
-        LDA = gensim.models.ldamodel.LdaModel
-        lda_model = LDA(
-            corpus=doc_term_matrix, 
-            id2word=dictionary, 
-            num_topics=4, 
-            random_state=0,
-            chunksize=1000, 
-            passes=50
-        )
-        return lda_model
-
-    def predict(self, lda_model, train_list, test_list):
-        dictionary = corpora.Dictionary(train_list)
-
-        corpus_list = [dictionary.doc2bow(rev) for rev in test_list]        
-        doc_lda_list = [lda_model[corpus] for corpus in corpus_list]
-
-        return(doc_lda_list)

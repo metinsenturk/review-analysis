@@ -10,18 +10,18 @@ import logging
 
 # 3rd party imports
 import requests
-import twitter
 import pandas as pd
 import numpy as np
 from yelpapi import YelpAPI
-from bs4 import BeautifulSoup
+from twitter import Twitter, OAuth
 from searchtweets import load_credentials, ResultStream, gen_rule_payload
+from bs4 import BeautifulSoup
 
 ## folder imports
 from data import folder_paths as fp
 from data.credentials import get_credidentials
 
-topic = {
+topics = {
     "price",
     "ambience",
     "food",
@@ -35,6 +35,7 @@ topic = {
     "time",
     "customer_service"
 }
+
 twitter_users = [
     'KimosRestaurant',
     'JakesInDelMar',
@@ -50,28 +51,12 @@ twitter_users = [
     'KeokisParadise',
     'LeilanisMaui'
 ]
-twitter_user_searches = {
-    'KimosRestaurant': [],
-    'JakesInDelMar': [],
-    'SunnysideResort': [],
-    'dukeshb': [],
-    'DukesLaJolla': [],
-    'DukesMalibu': [],
-    'DukesBeachHouse': [],
-    'DukesInKauai': [],
-    'DukesWaikiki': [],
-    'hulagrillwaiks': [],
-    'HulaGrillMaui': [],
-    'KeokisParadise': [],
-    'LeilanisMaui': []
-}
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-hdlr = logging.FileHandler("logs_scrapper.log")
+hdlr = logging.FileHandler("../../data/logs/logs_scrapper.log")
 hdlr.setFormatter(formatter)
 logger.addHandler(hdlr)
 
@@ -105,11 +90,12 @@ class scrappers:
         self.twitter_premium_api = load_credentials(
             filename="{}/{}".format(__dir_path,"twitter_keys.yaml"),
             yaml_key="search_tweets_api_30day")
-        self.twitter_api = twitter.Api(
+        self.twitter_api = Twitter(auth=OAuth(
             consumer_key=credentials['twitter']['consumer_key'],
             consumer_secret=credentials['twitter']['consumer_secret'],
-            access_token_key=credentials['twitter']['access_token_key'],
-            access_token_secret=credentials['twitter']['access_token_secret'])
+            token=credentials['twitter']['access_token_key'],
+            token_secret=credentials['twitter']['access_token_secret']
+        ))
         self.yelp_api = YelpAPI(credentials['yelp']['api_key'])
         self.__data_path = "../data/raw"
         logger.info("initiation started.")

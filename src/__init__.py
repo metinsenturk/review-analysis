@@ -1,15 +1,8 @@
-print(f'Invoking __init__.py for {__name__}')
+print(f'invoking __init__.py for {__name__}')
 
-# This oesn't work. Why ??? 
-'''
-from . import data
-from . import features
-from . import models
-from . import utils
-'''
+import build_data
+import model_data
+import process_data
+import app
 
-import data
-import features
-import models
-
-__all__ = [data, features, models]
+__all__ = [app, build_data, model_data, process_data]
