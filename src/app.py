@@ -41,4 +41,4 @@ if __name__ == '__main__':
 
     if input("Press any key to start..") is not None:
         # get_competitor_reviews(flags.starti, flags.endi)
-        test_topic_models('../data/processed/yp_competitors_rws_0001_0050_topics.csv')
+        test_topic_models('../data/processed/yp_competitors_rws_0001_0050_complete.csv')

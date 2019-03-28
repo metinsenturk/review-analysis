@@ -56,7 +56,9 @@ def get_lda_model(doc_term_matrix, id2word, fname):
     try:
         lda_model = LdaModel.load(fname)
     except:
-        lda_model = LdaModel(
+        pass
+    
+    lda_model = LdaModel(
             corpus=doc_term_matrix,
             id2word=id2word,
             num_topics=params['num_topics'],
@@ -75,7 +77,7 @@ def get_lda_model(doc_term_matrix, id2word, fname):
 
 
 def get_lda_mallet_model(doc_term_matrix, id2word, fname):
-    mallet_path = '../../model/mallet-2.0.8/bin/mallet'
+    mallet_path = '../model/mallet/bin/mallet'
 
     if fname is not None:
         try:
@@ -95,22 +97,30 @@ def get_lda_mallet_model(doc_term_matrix, id2word, fname):
     return lda_mallet
 
 
-def get_document_topics(model, doc_term_matrix, docs):
+def get_document_topics(model, doc_term_matrix, revs):
     """ scores topics to sentences first, then picks the mode for the doc and creates mode, sentence topics, and sentence topics with probabilities. """
     results = []
 
     i, j = 0, 0
-    for doc in docs:
-        j = j + len(doc)
-        doc_topic_list = model[doc_term_matrix][i:j+1]
+    for rev in revs:
+        # get document count on each review
+        j = j + len(rev)
+        doc_model_list = model[doc_term_matrix[i:j]]
         i = j
-        in_doc_topic_prob_list = [
-            max(sent_topic_list, key=lambda x: x[1]) for sent_topic_list in doc_topic_list]
-        doc_topics = ",".join(
-            [topic for topic, prob in in_doc_topic_prob_list])
-        doc_topic_mode = statistics.mode(
-            [topic for topic, prob in in_doc_topic_prob_list])
 
-        results.append(doc_topic_mode, doc_topics, in_doc_topic_prob_list)
+        # get topic prob distribution for each document in review, based on max probability
+        in_doc_topic_prob_list = []
+
+        if type(model) == LdaMallet:
+            in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) for sent_topic_list in doc_model_list]
+        else:
+            in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) for sent_topic_list, y, z in doc_model_list]
+
+        # topics
+        doc_topic_list = [topic for topic, prob in in_doc_topic_prob_list]
+        doc_topics = ",".join([str(topic) for topic in doc_topic_list])
+        doc_topic_mode = max(doc_topic_list, key=doc_topic_list.count)
+
+        results.append((doc_topic_mode, doc_topics, in_doc_topic_prob_list))
 
     return results
