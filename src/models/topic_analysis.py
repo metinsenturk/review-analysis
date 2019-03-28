@@ -7,7 +7,7 @@ from gensim.models import LsiModel
 from gensim.models.ldamulticore import LdaModel
 from gensim.models.wrappers import LdaMallet
 
-params = {"num_topics": 10, "chunksize": 500}
+params = {"num_topics": 5, "chunksize": 500}
 
 
 def _load_model(type, fname='../../model/'):
@@ -111,10 +111,10 @@ def get_document_topics(model, doc_term_matrix, revs):
         # get topic prob distribution for each document in review, based on max probability
         in_doc_topic_prob_list = []
 
-        if type(model) == LdaMallet:
-            in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) for sent_topic_list in doc_model_list]
+        if type(model) == LdaMallet or type(model) == LsiModel:
+            in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list in doc_model_list]
         else:
-            in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) for sent_topic_list, y, z in doc_model_list]
+            in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list, y, z in doc_model_list]
 
         # topics
         doc_topic_list = [topic for topic, prob in in_doc_topic_prob_list]

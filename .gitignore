@@ -8,12 +8,13 @@ data/**/*.*
 !data/**/*.gitkeep
 
 # model files
-model/*.*
+model/**/*.*
 !/model/*.gitkeep
+!model/**/*.gitkeep
 
 # notebooks .. this doesn't work :/
 .ipynb_checkpoints
-.ipynb_checkpoints/
+/.ipynb_checkpoints/
 */.ipynb_checkpoints/*
 notebooks/**/.ipynb_checkpoints/*
 
