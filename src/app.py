@@ -12,7 +12,7 @@ from model_data import test_topic_models
 # logging init
 logging.basicConfig(
     level=logging.INFO, 
-    format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
+    format='%(asctime)s - %(levelname)-8s - %(name)-12s - %(message)s',
     datefmt='%d-%b-%y %H:%M:%S',
     handlers=[
         logging.FileHandler('../data/logs/logs_app.log'),

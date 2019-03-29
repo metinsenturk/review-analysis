@@ -9,6 +9,7 @@ import utilities
 from models import topic_analysis
 
 logger = logging.getLogger(__name__)
+logging.getLogger("gensim").setLevel(logging.WARNING)
 
 
 def get_lsi_results(doc_term_matrix, id2word, revs, fname, output):
@@ -41,31 +42,38 @@ def get_mallet_results(doc_term_matrix, id2word, revs, fname, output):
     output.put(('mallet', doc_topic_tuples))
 
 
-def test_topic_models(from_filepath, to_filepath):
+def test_topic_models(from_filepath, to_filepath, lsi=True, lda=True, mallet=True):
     # read data
     df = pd.read_csv(from_filepath)
     logger.info("file read")
-    df = utilities.fix_token_columns(df.iloc[:50, :])
+    df = utilities.fix_token_columns(df)
     logger.info("file fix completed.")
 
     # sentences
-    revs = df.norm_tokens_doc[:50]
+    revs = df.norm_tokens_doc
     docs = list(itertools.chain(*revs))
+    logger.info(f"number of reviews and documents => revs: {len(revs)} docs: {len(docs)}")
 
     # topic modeling
     doc_term_matrix, id2word = topic_analysis.create_doc_term_matrix(docs)
     
     # topic models in multiprocessing
-    results = []
     output = Queue()
-    p_lsi = Process(name='lsi', target=get_lsi_results, args=(
-        doc_term_matrix, id2word, revs, 'lsi', output))
-    p_lda = Process(name='lda', target=get_lda_results, args=(
-        doc_term_matrix, id2word, revs, 'lda', output))
-    p_mallet = Process(name='mallet', target=get_mallet_results, args=(
-        doc_term_matrix, id2word, revs, 'mallet', output))
+    processes = []
+    results = []
 
-    processes = [p_lsi, p_lda, p_mallet]
+    if lsi:
+        p_lsi = Process(name='lsi', target=get_lsi_results, args=(
+            doc_term_matrix, id2word, revs, 'lsi', output))
+        processes.append(p_lsi)
+    if lda:    
+        p_lda = Process(name='lda', target=get_lda_results, args=(
+            doc_term_matrix, id2word, revs, 'lda', output))
+        processes.append(p_lda)
+    if mallet:    
+        p_mallet = Process(name='mallet', target=get_mallet_results, args=(
+            doc_term_matrix, id2word, revs, 'mallet', output))
+        processes.append(p_mallet)
 
     for process in processes:
         process.start()
