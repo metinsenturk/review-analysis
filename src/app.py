@@ -7,12 +7,13 @@ import pandas as pd
 import numpy as np
 
 # local imports
-from model_data import test_topic_models
+import utilities
+from model_data import run_topic_models
 
 # logging init
 logging.basicConfig(
     level=logging.INFO, 
-    format='%(asctime)s - %(name)-20s - %(levelname)-8s - %(message)s',
+    format='%(asctime)s - %(name)-25s - %(levelname)-8s - %(message)s',
     datefmt='%d-%b-%y %H:%M:%S',
     handlers=[
         logging.FileHandler('../data/logs/logs_app.log'),
@@ -42,6 +43,12 @@ if __name__ == '__main__':
 
     if input("Press any key to start..") is not None:
         # get_competitor_reviews(flags.starti, flags.endi)
-        test_topic_models(
-            from_filepath='../data/processed/yp_competitors_rws_0001_0050_complete.csv', 
-            to_filepath='../data/processed/yp_competitors_rws_0001_0050_topics.csv', mallet=False)
+        
+        # read data
+        df = pd.read_csv('../data/processed/yp_competitors_rws_0001_0050_complete.csv')
+        logger.info("file read.")
+        df = utilities.fix_token_columns(df.copy().loc[:100,:])
+        logger.info("file fix completed.")
+        run_topic_models(
+            tokens_list=df.norm_tokens_doc[:100], 
+            to_file='yp_competitors_rws_0001_0050_topics.csv', mallet=False)

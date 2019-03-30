@@ -36,11 +36,13 @@ def create_doc_term_matrix(docs):
 
 
 def get_lsi_model(doc_term_matrix, id2word, fname):
+    """
     if fname is not None:
         try:
             return LsiModel.load(fname)
         except:
             pass
+    """
 
     lsi_model = LsiModel(
         corpus=doc_term_matrix,
@@ -55,10 +57,12 @@ def get_lsi_model(doc_term_matrix, id2word, fname):
 
 
 def get_lda_model(doc_term_matrix, id2word, fname):
+    """
     try:
         lda_model = LdaModel.load(fname)
     except:
         pass
+    """
     
     lda_model = LdaModel(
             corpus=doc_term_matrix,
@@ -80,18 +84,19 @@ def get_lda_model(doc_term_matrix, id2word, fname):
 
 def get_lda_mallet_model(doc_term_matrix, id2word, fname):
     mallet_path = '../model/mallet/bin/mallet'
-
+    """
     if fname is not None:
         try:
             LdaMallet(fname)
         except:
             pass
+    """
 
     lda_mallet = LdaMallet(
         mallet_path=mallet_path,
         corpus=doc_term_matrix,
         id2word=id2word,
-        num_topics=10
+        num_topics=params['num_topics']
     )
 
     _save_model(lda_mallet, fname=fname)
