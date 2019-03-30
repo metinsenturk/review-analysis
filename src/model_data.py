@@ -28,7 +28,7 @@ def get_lsi_results(doc_term_matrix, id2word, revs, fname, output=None):
         lsi_model, doc_term_matrix, revs)
 
     logger_multi.info('results completed. putting in queue..')
-    output.put(('lsi', doc_topic_tuples))
+    output.put((fname, doc_topic_tuples))
     logger_multi.info('results sent.')
     
     return doc_topic_tuples
@@ -44,7 +44,7 @@ def get_lda_results(doc_term_matrix, id2word, revs, fname, output=None):
         lda_model, doc_term_matrix, revs)
 
     logger_multi.info('results completed. putting in queue..')
-    output.put(('lda', doc_topic_tuples))
+    output.put((fname, doc_topic_tuples))
     logger_multi.info('results sent.')
 
     return doc_topic_tuples
@@ -60,7 +60,7 @@ def get_mallet_results(doc_term_matrix, id2word, revs, fname, output=None):
         mallet_model, doc_term_matrix, revs)
 
     logger_multi.info('results completed. putting in queue..')
-    output.put(('mallet', doc_topic_tuples))
+    output.put((fname, doc_topic_tuples))
     logger_multi.info('results sent.')
 
     return doc_topic_tuples
@@ -76,6 +76,7 @@ def run_topic_models(tokens_list, to_file=None, lsi=True, lda=True, mallet=True)
 
     # topic modeling
     doc_term_matrix, id2word = topic_analysis.create_doc_term_matrix(docs)
+    doc_term_matrix_tfidf, id2word = topic_analysis.create_doc_term_matrix(docs, tfidf=True)
     
     # topic models in multiprocessing
     output = Queue()
@@ -90,6 +91,9 @@ def run_topic_models(tokens_list, to_file=None, lsi=True, lda=True, mallet=True)
         p_lda = Process(name='lda', target=get_lda_results, args=(
             doc_term_matrix, id2word, revs, 'lda', output))
         processes.append(p_lda)
+        #p_lda_tfidf = Process(name='lda_tfidf', target=get_lda_results, args=(
+            doc_term_matrix_tfidf, id2word, revs, 'lda_tfidf', output))
+        #processes.append(p_lda_tfidf)
     if mallet:    
         p_mallet = Process(name='mallet', target=get_mallet_results, args=(
             doc_term_matrix, id2word, revs, 'mallet', output))

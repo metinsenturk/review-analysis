@@ -8,6 +8,10 @@ from gensim.models import LsiModel
 from gensim.models.ldamulticore import LdaModel
 from gensim.models.wrappers import LdaMallet
 
+from gensim.models import RpModel
+from gensim.models import TfidfModel
+from gensim.models import LogEntropyModel
+
 logger = logging.getLogger(__name__)
 params = {"num_topics": 5, "chunksize": 500}
 
@@ -28,9 +32,21 @@ def _save_model(model, fname):
     model.save(fname)
 
 
-def create_doc_term_matrix(docs):
+def create_doc_term_matrix(docs, tfidf=False, logentropy=False, random_projections=False):
     id2word = Dictionary(documents=docs)
     doc_term_matrix = [id2word.doc2bow(doc) for doc in docs]
+
+    if random_projections:
+        rp_model = RpModel(corpus=doc_term_matrix, id2word=id2word, num_topics=params['num_topics'])
+        doc_term_matrix = rp_model[doc_term_matrix]
+
+    if tfidf:
+        tfidf_model = TfidfModel(id2word=id2word, corpus=doc_term_matrix, normalize=True)
+        doc_term_matrix = tfidf_model[doc_term_matrix]
+    
+    if logentropy:
+        log_model = LogEntropyModel(corpus=doc_term_matrix, normalize=True)
+        doc_term_matrix = log_model[doc_term_matrix]
 
     return doc_term_matrix, id2word
 
@@ -47,8 +63,7 @@ def get_lsi_model(doc_term_matrix, id2word, fname):
     lsi_model = LsiModel(
         corpus=doc_term_matrix,
         id2word=id2word,
-        num_topics=params['num_topics'],
-        chunksize=params['chunksize']
+        num_topics=params['num_topics']
     )
 
     _save_model(lsi_model, fname)
@@ -68,12 +83,7 @@ def get_lda_model(doc_term_matrix, id2word, fname):
             corpus=doc_term_matrix,
             id2word=id2word,
             num_topics=params['num_topics'],
-            chunksize=params['chunksize'],
-            random_state=100,
-            update_every=1,  # online iterative learning
-            passes=2,
-            distributed=False,
-            # alpha='auto',
+            passes=5,            
             per_word_topics=True
         )
 
@@ -96,6 +106,7 @@ def get_lda_mallet_model(doc_term_matrix, id2word, fname):
         mallet_path=mallet_path,
         corpus=doc_term_matrix,
         id2word=id2word,
+        workers=6,
         num_topics=params['num_topics']
     )
 
@@ -110,10 +121,10 @@ def get_document_topics(model, doc_term_matrix, revs):
 
     try:
         i, j = 0, 0
-        for rev in revs:
+        for index, rev in enumerate(revs):
             # get document count on each review
             j = j + len(rev)
-            logger.info(f"model: {type(model)} i: {i} j: {j}")
+            logger.info(f"model: {type(model)} doc => i: {i} j: {j} rev => {index + 1} of {len(revs)}")
             doc_model_list = model[doc_term_matrix[i:j]]
             i = j
 
