@@ -7,10 +7,13 @@ from gensim.corpora import Dictionary
 from gensim.models import LsiModel
 from gensim.models.ldamulticore import LdaModel
 from gensim.models.wrappers import LdaMallet
+from gensim.models import HdpModel
 
 from gensim.models import RpModel
 from gensim.models import TfidfModel
 from gensim.models import LogEntropyModel
+
+from gensim.models import CoherenceModel
 
 logger = logging.getLogger(__name__)
 params = {"num_topics": 5, "chunksize": 500}
@@ -51,7 +54,7 @@ def create_doc_term_matrix(docs, tfidf=False, logentropy=False, random_projectio
     return doc_term_matrix, id2word
 
 
-def get_lsi_model(doc_term_matrix, id2word, fname):
+def get_lsi_model(doc_term_matrix, id2word, fname, num_topics=None):
     """
     if fname is not None:
         try:
@@ -63,7 +66,7 @@ def get_lsi_model(doc_term_matrix, id2word, fname):
     lsi_model = LsiModel(
         corpus=doc_term_matrix,
         id2word=id2word,
-        num_topics=params['num_topics']
+        num_topics=params['num_topics'] if num_topics is None else num_topics
     )
 
     _save_model(lsi_model, fname)
@@ -71,7 +74,7 @@ def get_lsi_model(doc_term_matrix, id2word, fname):
     return lsi_model
 
 
-def get_lda_model(doc_term_matrix, id2word, fname):
+def get_lda_model(doc_term_matrix, id2word, fname, num_topics=None):
     """
     try:
         lda_model = LdaModel.load(fname)
@@ -82,7 +85,7 @@ def get_lda_model(doc_term_matrix, id2word, fname):
     lda_model = LdaModel(
             corpus=doc_term_matrix,
             id2word=id2word,
-            num_topics=params['num_topics'],
+            num_topics=params['num_topics'] if num_topics is None else num_topics,
             passes=5,            
             per_word_topics=True
         )
@@ -113,6 +116,29 @@ def get_lda_mallet_model(doc_term_matrix, id2word, fname):
     _save_model(lda_mallet, fname=fname)
 
     return lda_mallet
+
+
+def get_hdp_model(doc_term_matrix, id2word, fname):
+    hdp_model = HdpModel(
+        corpus=doc_term_matrix, 
+        id2word=id2word
+    )
+
+    _save_model(hdp_model, fname=fname)
+
+    return hdp_model
+
+
+def get_coherence_model(model, doc_term_matrix, id2word, revs):
+
+    coh_model = CoherenceModel(
+        model=model, 
+        corpus=doc_term_matrix, 
+        dictionary=id2word,
+        coherence='c_v'
+    )
+
+    return coh_model.get_coherence()
 
 
 def get_document_topics(model, doc_term_matrix, revs):
