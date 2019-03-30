@@ -12,7 +12,7 @@ from model_data import test_topic_models
 # logging init
 logging.basicConfig(
     level=logging.INFO, 
-    format='%(asctime)s - %(levelname)-8s - %(name)-12s - %(message)s',
+    format='%(asctime)s - %(name)-20s - %(levelname)-8s - %(message)s',
     datefmt='%d-%b-%y %H:%M:%S',
     handlers=[
         logging.FileHandler('../data/logs/logs_app.log'),
@@ -44,4 +44,4 @@ if __name__ == '__main__':
         # get_competitor_reviews(flags.starti, flags.endi)
         test_topic_models(
             from_filepath='../data/processed/yp_competitors_rws_0001_0050_complete.csv', 
-            to_filepath='../data/processed/yp_competitors_rws_0001_0050_topics.csv')
+            to_filepath='../data/processed/yp_competitors_rws_0001_0050_topics.csv', mallet=False)

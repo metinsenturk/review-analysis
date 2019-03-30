@@ -1,5 +1,6 @@
 import itertools
 import logging
+import time
 from multiprocessing import Process, Queue
 
 import pandas as pd
@@ -19,7 +20,10 @@ def get_lsi_results(doc_term_matrix, id2word, revs, fname, output):
     doc_topic_tuples = topic_analysis.get_document_topics(
         lsi_model, doc_term_matrix, revs)
 
+    time.sleep(5)
     output.put(('lsi', doc_topic_tuples))
+
+    return doc_topic_tuples
 
 
 def get_lda_results(doc_term_matrix, id2word, revs, fname, output):
@@ -29,7 +33,10 @@ def get_lda_results(doc_term_matrix, id2word, revs, fname, output):
     doc_topic_tuples = topic_analysis.get_document_topics(
         lda_model, doc_term_matrix, revs)
 
+    time.sleep(10)
     output.put(('lda', doc_topic_tuples))
+
+    return doc_topic_tuples
 
 
 def get_mallet_results(doc_term_matrix, id2word, revs, fname, output):
@@ -46,11 +53,11 @@ def test_topic_models(from_filepath, to_filepath, lsi=True, lda=True, mallet=Tru
     # read data
     df = pd.read_csv(from_filepath)
     logger.info("file read")
-    df = utilities.fix_token_columns(df)
+    df = utilities.fix_token_columns(df.iloc[:95, :])
     logger.info("file fix completed.")
 
     # sentences
-    revs = df.norm_tokens_doc
+    revs = df.norm_tokens_doc[:95]
     docs = list(itertools.chain(*revs))
     logger.info(f"number of reviews and documents => revs: {len(revs)} docs: {len(docs)}")
 
@@ -61,6 +68,9 @@ def test_topic_models(from_filepath, to_filepath, lsi=True, lda=True, mallet=Tru
     output = Queue()
     processes = []
     results = []
+
+    #results.append(('lsi', get_lsi_results(doc_term_matrix, id2word, revs, 'lsi', output)))
+    #results.append(('lda', get_lda_results(doc_term_matrix, id2word, revs, 'lda', output)))
 
     if lsi:
         p_lsi = Process(name='lsi', target=get_lsi_results, args=(
@@ -76,12 +86,14 @@ def test_topic_models(from_filepath, to_filepath, lsi=True, lda=True, mallet=Tru
         processes.append(p_mallet)
 
     for process in processes:
+        logger.info("{} process is started.".format(process.name))
         process.start()
 
     for process in processes:
         process.join()
-        logger.info("{} is completed".format(process.name))
+        logger.info("{} process is completed".format(process.name))
         results.append(output.get())
+        logger.info("output is appended to the list.")
 
     for process in processes:
         logger.info("process status for {}: {}".format(process.name, process.is_alive()))

@@ -1,3 +1,4 @@
+import logging
 import statistics
 import pandas as pd
 import numpy as np
@@ -7,6 +8,7 @@ from gensim.models import LsiModel
 from gensim.models.ldamulticore import LdaModel
 from gensim.models.wrappers import LdaMallet
 
+logger = logging.getLogger(__name__)
 params = {"num_topics": 5, "chunksize": 500}
 
 
@@ -101,26 +103,30 @@ def get_document_topics(model, doc_term_matrix, revs):
     """ scores topics to sentences first, then picks the mode for the doc and creates mode, sentence topics, and sentence topics with probabilities. """
     results = []
 
-    i, j = 0, 0
-    for rev in revs:
-        # get document count on each review
-        j = j + len(rev)
-        doc_model_list = model[doc_term_matrix[i:j]]
-        i = j
+    try:
+        i, j = 0, 0
+        for rev in revs:
+            # get document count on each review
+            j = j + len(rev)
+            logger.info(f"model: {type(model)} i: {i} j: {j}")
+            doc_model_list = model[doc_term_matrix[i:j]]
+            i = j
 
-        # get topic prob distribution for each document in review, based on max probability
-        in_doc_topic_prob_list = []
+            # get topic prob distribution for each document in review, based on max probability
+            in_doc_topic_prob_list = []
 
-        if type(model) == LdaMallet or type(model) == LsiModel:
-            in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list in doc_model_list]
-        else:
-            in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list, y, z in doc_model_list]
+            if type(model) == LdaMallet or type(model) == LsiModel:
+                in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list in doc_model_list]
+            else:
+                in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list, y, z in doc_model_list]
 
-        # topics
-        doc_topic_list = [topic for topic, prob in in_doc_topic_prob_list]
-        doc_topics = ",".join([str(topic) for topic in doc_topic_list])
-        doc_topic_mode = max(doc_topic_list, key=doc_topic_list.count)
+            # topics
+            doc_topic_list = [topic for topic, prob in in_doc_topic_prob_list]
+            doc_topics = ",".join([str(topic) for topic in doc_topic_list])
+            doc_topic_mode = max(doc_topic_list, key=doc_topic_list.count)
 
-        results.append((doc_topic_mode, doc_topics, in_doc_topic_prob_list))
+            results.append((doc_topic_mode, doc_topics, in_doc_topic_prob_list))
+    except Exception as ex:
+        logger.warning("scoring problem.", exc_info=ex)
 
     return results
