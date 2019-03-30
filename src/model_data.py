@@ -65,6 +65,21 @@ def get_mallet_results(doc_term_matrix, id2word, revs, fname, output=None):
 
     return doc_topic_tuples
 
+def get_hdp_results(doc_term_matrix, id2word, revs, fname, output=None):
+    logger_multi.info(f"{fname} started")
+    time_start = time.time()
+    mallet_model = topic_analysis.get_hdp_model(
+        doc_term_matrix, id2word, f'../model/mallet_model/{fname}.model')
+    logger_multi.info(f"{fname} took {time.time() - time_start} seconds to complete the model.")
+    doc_topic_tuples = topic_analysis.get_document_topics(
+        mallet_model, doc_term_matrix, revs)
+
+    logger_multi.info('results completed. putting in queue..')
+    output.put((fname, doc_topic_tuples))
+    logger_multi.info('results sent.')
+
+    return doc_topic_tuples
+
 
 def run_topic_models(tokens_list, to_file=None, transformations=False, find_optimal_num_topics=False, lsi=True, lda=True, mallet=True, hdp=True):
     """ gets normalized tokens and returns topics for all algortithms. """
@@ -86,15 +101,15 @@ def run_topic_models(tokens_list, to_file=None, transformations=False, find_opti
     results = []
 
     if lsi:
+        p_lsi = Process(name='lsi', target=get_lsi_results, args=(
+                doc_term_matrix, id2word, revs, 'lsi', None, output))
+        processes.append(p_lsi)
+
         if find_optimal_num_topics:
             for num_topics in range(2, 21, 3):
                 p_lsi = Process(name=f'lsi_{num_topics}', target=get_lsi_results, args=(
                     doc_term_matrix, id2word, revs, f'lsi_{num_topics}', num_topics, output))
                 processes.append(p_lsi)
-        else:
-            p_lsi = Process(name='lsi', target=get_lsi_results, args=(
-                doc_term_matrix, id2word, revs, 'lsi', None, output))
-            processes.append(p_lsi)
         
         if transformations:
             p_lsi = Process(name='lsi_tfidf', target=get_lsi_results, args=(
@@ -108,16 +123,16 @@ def run_topic_models(tokens_list, to_file=None, transformations=False, find_opti
             p_lsi = Process(name='lsi_random_projections', target=get_lsi_results, args=(
                 doc_term_matrix_random_projections, id2word, revs, 'lsi_random_projections', None, output))
             processes.append(p_lsi)
-    if lda:    
+    if lda:
+        p_lda = Process(name='lda', target=get_lda_results, args=(
+                    doc_term_matrix, id2word, revs, 'lda', None, output))
+        processes.append(p_lda)
+
         if find_optimal_num_topics:
             for num_topics in range(2, 21, 3):
                 p_lda = Process(name=f'lda_{num_topics}', target=get_lda_results, args=(
                     doc_term_matrix, id2word, revs, f'lda_{num_topics}', num_topics, output))
                 processes.append(p_lda)
-        else:
-            p_lda = Process(name='lda', target=get_lda_results, args=(
-                    doc_term_matrix, id2word, revs, 'lda', None, output))
-            processes.append(p_lda)
         
         if transformations:
             p_lda = Process(name='lda_tfidf', target=get_lda_results, args=(
@@ -135,6 +150,23 @@ def run_topic_models(tokens_list, to_file=None, transformations=False, find_opti
         p_mallet = Process(name='mallet', target=get_mallet_results, args=(
             doc_term_matrix, id2word, revs, 'mallet', output))
         processes.append(p_mallet)
+
+    if hdp:
+        p_hdp = Process(name='hdp', target=get_mallet_results, args=(
+            doc_term_matrix, id2word, revs, 'hdp', output))
+        
+        if transformations:
+            p_hdp = Process(name='hdp_tfidf', target=get_hdp_results, args=(
+                doc_term_matrix_tfidf, id2word, revs, 'hdp_tfidf', output))
+            processes.append(p_hdp)
+
+            p_hdp = Process(name='hdp_logentropy', target=get_hdp_results, args=(
+                doc_term_matrix_logentropy, id2word, revs, 'hdp_logentropy', output))
+            processes.append(p_hdp)
+
+            p_hdp = Process(name='hdp_random_projections', target=get_hdp_results, args=(
+                doc_term_matrix_random_projections, id2word, revs, 'hdp_random_projections', output))
+            processes.append(p_hdp)
 
     for process in processes:
         logger.info("{} process is started.".format(process.name))

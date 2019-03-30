@@ -138,7 +138,7 @@ def get_coherence_model(model, doc_term_matrix, id2word, revs):
         coherence='c_v'
     )
 
-    return coh_model.get_coherence()
+    return coh_model
 
 
 def get_document_topics(model, doc_term_matrix, revs):
@@ -157,10 +157,10 @@ def get_document_topics(model, doc_term_matrix, revs):
             # get topic prob distribution for each document in review, based on max probability
             in_doc_topic_prob_list = []
 
-            if type(model) == LdaMallet or type(model) == LsiModel:
-                in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list in doc_model_list]
-            else:
+            if type(model) == LdaModel:
                 in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list, y, z in doc_model_list]
+            else:
+                in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list in doc_model_list]                
 
             # topics
             doc_topic_list = [topic for topic, prob in in_doc_topic_prob_list]
