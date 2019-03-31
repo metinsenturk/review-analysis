@@ -19,11 +19,11 @@ logger_multi = multiprocessing.log_to_stderr()
 logger_multi.setLevel(logging.INFO)
 
 
-def get_lsi_results(doc_term_matrix, id2word, revs, fname, num_topics= None,output=None):
+def get_lsi_results(doc_term_matrix, id2word, revs, fname, num_topics= None, output=None):
     logger_multi.info(f"{fname} started")
     time_start = time.time()
     lsi_model = topic_analysis.get_lsi_model(
-        doc_term_matrix, id2word, f'../model/lsi_model/{fname}.model', num_topics)
+        doc_term_matrix, id2word, f'{fname}.model', num_topics)
     logger_multi.info(f"{fname} took {time.time() - time_start} seconds to complete the model.")
     doc_topic_tuples = topic_analysis.get_document_topics(
         lsi_model, doc_term_matrix, revs)
@@ -39,7 +39,7 @@ def get_lda_results(doc_term_matrix, id2word, revs, fname, num_topics=None, outp
     logger_multi.info(f"{fname} started")
     time_start = time.time()
     lda_model = topic_analysis.get_lda_model(
-        doc_term_matrix, id2word, f'../model/lda_model/{fname}.model', num_topics)
+        doc_term_matrix, id2word, f'{fname}.model', num_topics)
     logger_multi.info(f"{fname} took {time.time() - time_start} seconds to complete the model.")
     doc_topic_tuples = topic_analysis.get_document_topics(
         lda_model, doc_term_matrix, revs)
@@ -55,7 +55,7 @@ def get_mallet_results(doc_term_matrix, id2word, revs, fname, output=None):
     logger_multi.info(f"{fname} started")
     time_start = time.time()
     mallet_model = topic_analysis.get_lda_mallet_model(
-        doc_term_matrix, id2word, f'../model/mallet_model/{fname}.model')
+        doc_term_matrix, id2word, f'{fname}.model')
     logger_multi.info(f"{fname} took {time.time() - time_start} seconds to complete the model.")
     doc_topic_tuples = topic_analysis.get_document_topics(
         mallet_model, doc_term_matrix, revs)
@@ -70,7 +70,7 @@ def get_hdp_results(doc_term_matrix, id2word, revs, fname, output=None):
     logger_multi.info(f"{fname} started")
     time_start = time.time()
     mallet_model = topic_analysis.get_hdp_model(
-        doc_term_matrix, id2word, f'../model/mallet_model/{fname}.model')
+        doc_term_matrix, id2word, f'{fname}.model')
     logger_multi.info(f"{fname} took {time.time() - time_start} seconds to complete the model.")
     doc_topic_tuples = topic_analysis.get_document_topics(
         mallet_model, doc_term_matrix, revs)
@@ -82,9 +82,11 @@ def get_hdp_results(doc_term_matrix, id2word, revs, fname, output=None):
     return doc_topic_tuples
 
 
-def run_topic_models(tokens_list, to_file=None, transformations=False, find_optimal_num_topics=False, lsi=True, lda=True, mallet=True, hdp=True):
+def run_topic_models(tokens_list, to_file=None, transformations=False, find_optimal_num_topics=False, training=False, lsi=True, lda=True, mallet=True, hdp=True):
     """ gets normalized tokens and returns topics for all algortithms. """
     
+    logger.info("topic algorithms starting..")
+
     # sentences
     revs = tokens_list
     docs = list(itertools.chain(*revs))
@@ -95,7 +97,11 @@ def run_topic_models(tokens_list, to_file=None, transformations=False, find_opti
     doc_term_matrix_tfidf, id2word = topic_analysis.create_doc_term_matrix(docs, tfidf=True)
     doc_term_matrix_random_projections, id2word = topic_analysis.create_doc_term_matrix(docs, random_projections=True)
     doc_term_matrix_logentropy, id2word = topic_analysis.create_doc_term_matrix(docs, logentropy=True)
+    logger.info("doc_term_matrixes and dictionaries created.")
     
+    # choise of training
+    topic_analysis.params['training'] = training
+
     # topic models in multiprocessing
     output = Queue()
     processes = []
@@ -207,6 +213,8 @@ def run_topic_models(tokens_list, to_file=None, transformations=False, find_opti
 
 def run_sentiment_models(revs_list, sentiment_list, to_file, sgd=True, log=True, mnb=True, rdg=True):
     
+    logger.info("sentiment algorithms starting..")
+
     X = revs_list
     y = sentiment_list
 

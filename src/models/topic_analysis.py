@@ -16,23 +16,39 @@ from gensim.models import LogEntropyModel
 from gensim.models import CoherenceModel
 
 logger = logging.getLogger(__name__)
-params = {"num_topics": 5, "chunksize": 500}
+params = {"num_topics": 5, "chunksize": 500, "training": True}
 
 
-def _load_model(type, fname='../../model/'):
+def _load_model(model_type, fname):
+    logger.info(f'{model_type} type of {fname} is loading..')
     try:
-        if type == 'lsi':
-            return LsiModel.load(fname)
-        elif type == 'lda':
-            return LdaModel.load(fname)
-        elif type == 'mallet':
-            return LdaMallet.load(fname)
-    except:
+        if model_type == 'lsi':
+            return LsiModel.load(f'../model/lsi_model/{fname}')
+        elif model_type == 'lda':
+            return LdaModel.load(f'../model/lda_model/{fname}')
+        elif model_type == 'mallet':
+            return LdaMallet.load(f'../model/mallet_model/{fname}')
+        elif model_type == 'hdp':
+            return HdpModel.load(f'../model/mallet_model/{fname}')
+    except Exception as ex:
+        logger.warning(f'{model_type} type of {fname} could not be saved.', exc_info=ex)
         return None
 
 
-def _save_model(model, fname):
-    model.save(fname)
+def _save_model(model_type, model, fname):
+    logger.info(f'{model_type} type of {fname} is saved.')
+    try:
+        if model_type == 'lsi':
+            return model.save(fname=f'../model/lsi_model/{fname}')
+        elif model_type == 'lda':
+            return model.save(fname=f'../model/lda_model/{fname}')
+        elif model_type == 'mallet':
+            return model.save(fname=f'../model/mallet_model/{fname}')
+        elif model_type == 'hdp':
+            return model.save(fname=f'../model/mallet_model/{fname}')
+    except Exception as ex:
+        logger.warning(f'{fname} could not be saved.', exc_info=ex)
+        return None
 
 
 def create_doc_term_matrix(docs, tfidf=False, logentropy=False, random_projections=False):
@@ -55,76 +71,64 @@ def create_doc_term_matrix(docs, tfidf=False, logentropy=False, random_projectio
 
 
 def get_lsi_model(doc_term_matrix, id2word, fname, num_topics=None):
-    """
-    if fname is not None:
-        try:
-            return LsiModel.load(fname)
-        except:
-            pass
-    """
-
-    lsi_model = LsiModel(
-        corpus=doc_term_matrix,
-        id2word=id2word,
-        num_topics=params['num_topics'] if num_topics is None else num_topics
-    )
-
-    _save_model(lsi_model, fname)
+    
+    if params['training']:
+        lsi_model = LsiModel(
+            corpus=doc_term_matrix,
+            id2word=id2word,
+            num_topics=params['num_topics'] if num_topics is None else num_topics
+        )
+        _save_model('lsi', lsi_model, fname)
+    else:
+        lsi_model = _load_model('lsi', fname)
 
     return lsi_model
 
 
 def get_lda_model(doc_term_matrix, id2word, fname, num_topics=None):
-    """
-    try:
-        lda_model = LdaModel.load(fname)
-    except:
-        pass
-    """
-    
-    lda_model = LdaModel(
-            corpus=doc_term_matrix,
-            id2word=id2word,
-            num_topics=params['num_topics'] if num_topics is None else num_topics,
-            passes=5,            
-            per_word_topics=True
-        )
 
-    _save_model(lda_model, fname=fname)
+    if params['training']:
+        lda_model = LdaModel(
+                corpus=doc_term_matrix,
+                id2word=id2word,
+                num_topics=params['num_topics'] if num_topics is None else num_topics,
+                passes=5,            
+                per_word_topics=True
+            )
+        _save_model('lda', lda_model, fname=fname)
+    else:
+        lda_model = _load_model('lda', fname)
 
     return lda_model
 
 
 def get_lda_mallet_model(doc_term_matrix, id2word, fname):
     mallet_path = '../model/mallet/bin/mallet'
-    """
-    if fname is not None:
-        try:
-            LdaMallet(fname)
-        except:
-            pass
-    """
 
-    lda_mallet = LdaMallet(
-        mallet_path=mallet_path,
-        corpus=doc_term_matrix,
-        id2word=id2word,
-        workers=6,
-        num_topics=params['num_topics']
-    )
-
-    _save_model(lda_mallet, fname=fname)
+    if params['training']:
+        lda_mallet = LdaMallet(
+            mallet_path=mallet_path,
+            corpus=doc_term_matrix,
+            id2word=id2word,
+            workers=6,
+            num_topics=params['num_topics']
+        )
+        _save_model('mallet', lda_mallet, fname=fname)
+    else:
+        lda_mallet = _load_model('mallet', fname)
 
     return lda_mallet
 
 
 def get_hdp_model(doc_term_matrix, id2word, fname):
-    hdp_model = HdpModel(
-        corpus=doc_term_matrix, 
-        id2word=id2word
-    )
-
-    _save_model(hdp_model, fname=fname)
+    if params['training']:
+        hdp_model = HdpModel(
+            corpus=doc_term_matrix, 
+            id2word=id2word
+        )
+        _save_model('hdp', hdp_model, fname=fname)
+    else:
+        hdp_model = _load_model('hdp', fname)
 
     return hdp_model
 
