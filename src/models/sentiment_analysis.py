@@ -62,3 +62,9 @@ def rdg_model(X, y, name):
     _save_model(clf, f'rdg_model/{name}')
 
     return clf
+
+def get_document_sentiments(model, X, y):
+    y_pred = model.predict(X)
+
+    return y_pred
+    

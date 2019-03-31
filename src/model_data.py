@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 
 from models import topic_analysis
+from models import sentiment_analysis
 
 # log configuration
 logger = logging.getLogger(__name__)
@@ -202,3 +203,35 @@ def run_topic_models(tokens_list, to_file=None, transformations=False, find_opti
         logger.info("file saved.")
     
     return df_topics
+
+
+def run_sentiment_models(revs_list, sentiment_list, to_file, sgd=True, log=True, mnb=True, rdg=True):
+    
+    X = revs_list
+    y = sentiment_list
+
+    logger.info(f"number of items in reviews and sentiments: revs => {len(X)} sentiments: {len(y)}")
+
+    models = [
+        ('log', sentiment_analysis.log_model),
+        ('mnb', sentiment_analysis.mnb_model),
+        ('rdg', sentiment_analysis.rdg_model),
+        ('sgd', sentiment_analysis.sgd_model),
+    ]
+
+    results = []
+
+    for model_name, fn_model in models:
+        clf = fn_model(X, y, model_name)
+        y_pred = sentiment_analysis.get_document_sentiments(clf, X, y)
+        results.append(pd.Series(y_pred, name=model_name))
+
+    # saving into file
+    df_sentiments = pd.concat(results, axis=1)
+    logger.info(f"sentiments has shape of : {df_sentiments.shape}")
+    if to_file is not None:
+        df_sentiments.to_csv(f'../data/processed/{to_file}', index=False)
+        logger.info("file saved.")
+    
+    return df_sentiments
+    
