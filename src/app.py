@@ -47,10 +47,13 @@ if __name__ == '__main__':
         
         # read data
         df = pd.read_csv('../data/processed/hi_rws_0001_0256_complete.csv')
-        logger.info("file read.")
-        df = utilities.fix_token_columns(df.copy().loc[:1000,:])
-        logger.info("file fix completed.")
+        logger.info("file is read.")
         
+        n = 10000
+        
+        df = utilities.fix_token_columns(df.copy().loc[:n,:])
+        logger.info("file fix is completed.")
+                
         # run_topic_models(
         #     tokens_list=df.norm_tokens_doc[:50], 
         #     to_file='hi_rws_0001_0256_topics.csv', 
@@ -63,8 +66,8 @@ if __name__ == '__main__':
         # )
 
         run_sentiment_models(
-            revs_list=df.norm_tokens_doc.apply(lambda x: ' '.join(itertools.chain(*x)))[:1000],
-            sentiment_list=df.sentiment[:1000],
+            revs_list=df.norm_tokens_doc.apply(lambda x: ' '.join(itertools.chain(*x)))[:n],
+            sentiment_list=df.sentiment[:n],
             to_file='hi_rws_0001_0256_sentiments.csv',
             sgd=True,
             log=True,
