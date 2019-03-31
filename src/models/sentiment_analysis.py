@@ -12,6 +12,7 @@ from sklearn.linear_model import RidgeClassifier
 
 logger = logging.getLogger(__name__)
 
+
 def _save_model(model, name):
     try:
         with open(f'../model/{name}.pkl', 'wb') as f:
@@ -19,52 +20,65 @@ def _save_model(model, name):
     except Exception as ex:
         logger.warning(f"{name} could not be saved.", exc_info=ex)
 
-def _build_pipe(model, tfidf=True):
+
+def get_pipe(tfidf=True):
     steps = []
     steps.append(('cnt', CountVectorizer()))
 
     if tfidf:
         steps.append(('tdf', TfidfTransformer()))
-    
-    steps.append(model)
-    clf = Pipeline(steps=steps)
 
-    return clf
+    pipe = Pipeline(steps=steps)
 
-def sgd_model(X, y, name):
-    clf = _build_pipe(('sgd', SGDClassifier(n_jobs=-1)))
-    clf.fit(X, y)
+    return pipe
 
-    _save_model(clf, f'sgd_model/{name}')
 
-    return clf
+def sgd_model(X, y, pipe, name):
+    pipe.steps.append((name, SGDClassifier(
+        n_jobs=-1,
+        loss='hinge',
+        penalty='l2',
+        max_iter=1000,
+        tol=0.05
+    )))
+    pipe.fit(X, y)
 
-def log_model(X, y, name):
-    clf = _build_pipe(('log', LogisticRegression(n_jobs=-1)))
-    clf.fit(X, y)
+    _save_model(pipe, f'sgd_model/{name}')
 
-    _save_model(clf, f'log_model/{name}')
+    return pipe
 
-    return clf
 
-def mnb_model(X, y, name):
-    clf = _build_pipe(('mnb', MultinomialNB()))
-    clf.fit(X, y)
+def log_model(X, y, pipe, name):
+    pipe.steps.append((name, LogisticRegression(
+        n_jobs=-1,
+        solver='sag',
+    )))
+    pipe.fit(X, y)
 
-    _save_model(clf, f'mnb_model/{name}')
+    _save_model(pipe, f'log_model/{name}')
 
-    return clf
+    return pipe
 
-def rdg_model(X, y, name):
-    clf = _build_pipe(('rdg', RidgeClassifier()))
-    clf.fit(X, y)
 
-    _save_model(clf, f'rdg_model/{name}')
+def mnb_model(X, y, pipe, name):
+    pipe.steps.append((name, MultinomialNB()))
+    pipe.fit(X, y)
 
-    return clf
+    _save_model(pipe, f'mnb_model/{name}')
+
+    return pipe
+
+
+def rdg_model(X, y, pipe, name):
+    pipe.steps.append((name, RidgeClassifier()))
+    pipe.fit(X, y)
+
+    _save_model(pipe, f'rdg_model/{name}')
+
+    return pipe
+
 
 def get_document_sentiments(model, X, y):
     y_pred = model.predict(X)
 
     return y_pred
-    

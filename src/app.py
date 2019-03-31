@@ -63,8 +63,8 @@ if __name__ == '__main__':
         # )
 
         run_sentiment_models(
-            revs_list=df.norm_tokens_doc.apply(lambda x: ' '.join(itertools.chain(*x)))[:50],
-            sentiment_list=df.sentiment[:50],
+            revs_list=df.norm_tokens_doc.apply(lambda x: ' '.join(itertools.chain(*x)))[:1000],
+            sentiment_list=df.sentiment[:1000],
             to_file='hi_rws_0001_0256_sentiments.csv',
             sgd=True,
             log=True,

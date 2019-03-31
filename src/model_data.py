@@ -219,12 +219,22 @@ def run_sentiment_models(revs_list, sentiment_list, to_file, sgd=True, log=True,
         ('sgd', sentiment_analysis.sgd_model),
     ]
 
+    pipes = [
+        sentiment_analysis.get_pipe(),
+        sentiment_analysis.get_pipe(tfidf=False),
+    ]
+
+    model_pipe_list = list(itertools.product(pipes, models))
+
     results = []
 
-    for model_name, fn_model in models:
-        clf = fn_model(X, y, model_name)
+    for pipe, (model_name, fn_model) in model_pipe_list:
+        clf = fn_model(X, y, pipe, model_name)
+        logger.info(f"model built and saved for {model_name}")
         y_pred = sentiment_analysis.get_document_sentiments(clf, X, y)
         results.append(pd.Series(y_pred, name=model_name))
+        pipe.steps.pop()
+        logger.info(f"predictions get for {model_name}. accuracy is {np.mean(y == y_pred)}.")
 
     # saving into file
     df_sentiments = pd.concat(results, axis=1)
