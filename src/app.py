@@ -46,32 +46,31 @@ if __name__ == '__main__':
         # get_competitor_reviews(flags.starti, flags.endi)
         
         # read data
-        df = pd.read_csv('../data/processed/hi_rws_0001_0256_complete.csv')
+        df = pd.read_csv('../data/processed/hi_rws_0001_0256_complete.csv', nrows=1000)
         logger.info("file is read.")
-        
-        n = 100
-        
-        df = utilities.fix_token_columns(df.copy().loc[:n,:])
+
+        df = utilities.fix_token_columns(df)
         logger.info("file fix is completed.")
                 
-        run_topic_models(
-            tokens_list=df.norm_tokens_doc[:n], 
-            to_file='hi_rws_0001_0256_topics.csv', 
-            transformations=False, 
-            find_optimal_num_topics=False, 
-            training=False,
-            lsi=True,
-            lda=True,            
-            mallet=False,
-            hdp=False
-        )
+        # run_topic_models(
+        #     tokens_list=df.norm_tokens_doc, 
+        #     to_file='hi_rws_0001_0256_topics.csv', 
+        #     transformations=False, 
+        #     find_optimal_num_topics=False, 
+        #     training=False,
+        #     lsi=True,
+        #     lda=True,            
+        #     mallet=False,
+        #     hdp=False
+        # )
 
         run_sentiment_models(
-            revs_list=df.norm_tokens_doc.apply(lambda x: ' '.join(itertools.chain(*x)))[:n],
-            sentiment_list=df.sentiment[:n],
+            revs_list=df.norm_tokens_doc.apply(lambda x: ' '.join(itertools.chain(*x))),
+            sentiment_list=df.sentiment,
             to_file='hi_rws_0001_0256_sentiments.csv',
+            optimum=True,
             sgd=True,
             log=True,
             mnb=True,
-            rdg=True
+            rdg=False # does not have predict_proba
         )

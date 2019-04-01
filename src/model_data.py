@@ -15,6 +15,7 @@ from models import sentiment_analysis
 # log configuration
 logger = logging.getLogger(__name__)
 logging.getLogger("gensim").setLevel(logging.WARNING)
+logging.getLogger("sklearn").setLevel(logging.FATAL)
 logger_multi = multiprocessing.log_to_stderr()
 logger_multi.setLevel(logging.INFO)
 
@@ -211,21 +212,23 @@ def run_topic_models(tokens_list, to_file=None, transformations=False, find_opti
     return df_topics
 
 
-def run_sentiment_models(revs_list, sentiment_list, to_file, sgd=True, log=True, mnb=True, rdg=True):
+def run_sentiment_models(revs_list, sentiment_list, to_file, optimum=False, sgd=True, log=True, mnb=True, rdg=True):
     
     logger.info("sentiment algorithms starting..")
 
     X = revs_list
     y = sentiment_list
-
     logger.info(f"number of items in reviews and sentiments: revs => {len(X)} sentiments: {len(y)}")
 
-    models = [
-        ('log', sentiment_analysis.log_model),
-        ('mnb', sentiment_analysis.mnb_model),
-        ('rdg', sentiment_analysis.rdg_model),
-        ('sgd', sentiment_analysis.sgd_model),
-    ]
+    models = []
+    if sgd:
+        models.append(('sgd', sentiment_analysis.sgd_model))
+    if log:
+        models.append(('log', sentiment_analysis.log_model))
+    if mnb:
+        models.append(('mnb', sentiment_analysis.mnb_model))
+    if rdg:
+        models.append(('rdg', sentiment_analysis.rdg_model))
 
     pipes = [
         sentiment_analysis.get_pipe(),
@@ -234,15 +237,17 @@ def run_sentiment_models(revs_list, sentiment_list, to_file, sgd=True, log=True,
 
     model_pipe_list = list(itertools.product(pipes, models))
 
+    sentiment_analysis.params['optimum'] = optimum
+
     results = []
 
     for pipe, (model_name, fn_model) in model_pipe_list:
         clf = fn_model(X, y, pipe, model_name)
-        logger.info(f"model built and saved for {model_name}")
+        logger.info(f"model built and saved for {model_name}.")
         y_pred = sentiment_analysis.get_document_sentiments(clf, X, y)
         results.append(pd.Series(y_pred, name=model_name))
         pipe.steps.pop()
-        logger.info(f"predictions get for {model_name}. accuracy is {np.mean(y == y_pred)}.")
+        logger.info(f"predictions calculated for {model_name}. accuracy is {np.mean(y == y_pred)}.")
 
     # saving into file
     df_sentiments = pd.concat(results, axis=1)
