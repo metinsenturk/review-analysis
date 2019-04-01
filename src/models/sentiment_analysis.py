@@ -18,7 +18,7 @@ from sklearn.linear_model import RidgeClassifier
 logger = logging.getLogger(__name__)
 params = {
     'optimum': False, 
-    'max_iter': [100, 50], #, 1000], # 2000, 5000], 
+    'max_iter': [100, 500], #, 1000], # 2000, 5000], 
     'alpha': np.logspace(-5, 5, 2), 
     'C': [0.001], #, 0.01, 0.1, 1, 10, 100, 1000], 
     'tol':[0.001] #, 0.1, 1]
@@ -145,21 +145,24 @@ def get_gridsearchcsv_model(X, y, pipe, model_params, name):
     gscv_params = {**pipe_params, **model_params}
     scoring = ('accuracy', 'balanced_accuracy', 'average_precision', 'brier_score_loss', 'recall', 'roc_auc') # 'f1_micro', 'f1_macro', 'f1_weighted', 'f1', 'precision',
     
-    logger.info('starting grid search cv..')
-    gscv = GridSearchCV(
-        estimator=pipe,
-        param_grid=gscv_params,
-        scoring=scoring,
-        refit='accuracy',
-        iid=False,
-        return_train_score=True,
-        n_jobs=-1,
-        cv=StratifiedKFold(n_splits=10)
-    )
-    t_start = time.time()
-    logger.info(f'gscv is created for {name}.')
-    gscv.fit(X, y)
-    logger.info(f'gscv finished for {name}. It took {time.time() - t_start} seconds')
+    try:
+        logger.info('starting grid search cv..')
+        gscv = GridSearchCV(
+            estimator=pipe,
+            param_grid=gscv_params,
+            scoring=scoring,
+            refit='accuracy',
+            iid=False,
+            return_train_score=True,
+            n_jobs=-1,
+            cv=StratifiedKFold(n_splits=10)
+        )
+        t_start = time.time()
+        logger.info(f'gscv is created for {name}.')
+        gscv.fit(X, y)
+        logger.info(f'gscv finished for {name}. It took {time.time() - t_start} seconds')
+    except Exception as ex:
+        logger.warning(f'gscv is failed for {name}.', exc_info=ex)
 
     folder_path, file_name = name.split('/')
     _save_model(gscv, f'{folder_path}/gscv_{file_name}')

@@ -145,7 +145,7 @@ def get_coherence_model(model, doc_term_matrix, id2word, revs):
     return coh_model
 
 
-def get_document_topics(model, doc_term_matrix, revs):
+def get_document_topics(model, doc_term_matrix, revs, fname):
     """ scores topics to sentences first, then picks the mode for the doc and creates mode, sentence topics, and sentence topics with probabilities. """
     results = []
 
@@ -154,8 +154,9 @@ def get_document_topics(model, doc_term_matrix, revs):
         for index, rev in enumerate(revs):
             # get document count on each review
             j = j + len(rev)
-            logger.info(f"model: {type(model)} doc => i: {i} j: {j} rev => {index + 1} of {len(revs)}")
+            logger.debug(f"model: {fname} doc => i: {i} j: {j} rev => {index + 1} of {len(revs)}")
             doc_model_list = model[doc_term_matrix[i:j]]
+            logger.info(f"model: {fname} doc => i: {i} j: {j} rev => {len(doc_model_list)} rev => {len(rev)}")
             i = j
 
             # get topic prob distribution for each document in review, based on max probability
@@ -173,6 +174,6 @@ def get_document_topics(model, doc_term_matrix, revs):
 
             results.append((doc_topic_mode, doc_topics, in_doc_topic_prob_list))
     except Exception as ex:
-        logger.warning("scoring problem.", exc_info=ex)
+        logger.warning(f"scoring problem for {fname}: => i: {i} j: {j}", exc_info=ex)
 
     return results
