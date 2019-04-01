@@ -31,7 +31,7 @@ def _load_model(model_type, fname):
         elif model_type == 'hdp':
             return HdpModel.load(f'../model/mallet_model/{fname}')
     except Exception as ex:
-        logger.warning(f'{model_type} type of {fname} could not be saved.', exc_info=ex)
+        logger.warning(f'{model_type} type of {fname} could not be loaded.', exc_info=ex)
         return None
 
 

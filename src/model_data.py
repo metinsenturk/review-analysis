@@ -108,8 +108,8 @@ def run_topic_models(tokens_list, to_file=None, transformations=False, find_opti
     results = []
 
     if lsi:
-        p_lsi = Process(name='lsi', target=get_lsi_results, args=(
-                doc_term_matrix, id2word, revs, 'lsi', None, output))
+        p_lsi = Process(name='lsi_5', target=get_lsi_results, args=(
+                doc_term_matrix, id2word, revs, 'lsi_5', None, output))
         processes.append(p_lsi)
 
         if find_optimal_num_topics:
@@ -131,8 +131,8 @@ def run_topic_models(tokens_list, to_file=None, transformations=False, find_opti
                 doc_term_matrix_random_projections, id2word, revs, 'lsi_random_projections', None, output))
             processes.append(p_lsi)
     if lda:
-        p_lda = Process(name='lda', target=get_lda_results, args=(
-                    doc_term_matrix, id2word, revs, 'lda', None, output))
+        p_lda = Process(name='lda_5', target=get_lda_results, args=(
+                    doc_term_matrix, id2word, revs, 'lda_5', None, output))
         processes.append(p_lda)
 
         if find_optimal_num_topics:
