@@ -21,35 +21,41 @@ logger_multi.setLevel(logging.INFO)
 
 
 def get_lsi_results(doc_term_matrix, id2word, revs, fname, num_topics= None, output=None):
-    logger_multi.info(f"{fname} started")
-    time_start = time.time()
-    lsi_model = topic_analysis.get_lsi_model(
-        doc_term_matrix, id2word, f'{fname}.model', num_topics)
-    logger_multi.info(f"{fname} took {time.time() - time_start} seconds to complete the model.")
-    doc_topic_tuples = topic_analysis.get_document_topics(
-        lsi_model, doc_term_matrix, revs, fname)
+    try:
+        logger_multi.info(f"{fname} started")
+        time_start = time.time()
+        lsi_model = topic_analysis.get_lsi_model(
+            doc_term_matrix, id2word, f'{fname}.model', num_topics)
+        logger_multi.info(f"{fname} took {time.time() - time_start} seconds to complete the model.")
+        doc_topic_tuples = topic_analysis.get_document_topics(
+            lsi_model, doc_term_matrix, revs, fname)
 
-    logger_multi.info('results completed. putting in queue..')
-    output.put((fname, doc_topic_tuples))
-    logger_multi.info('results sent.')
-    
-    return doc_topic_tuples
+        logger_multi.info('results completed. putting in queue..')
+        output.put((fname, doc_topic_tuples))
+        logger_multi.info('results sent.')
+        
+        return doc_topic_tuples
+    except Exception as ex:
+        logger.warning("get_lsi_results failed.", exc_info=ex)
 
 
 def get_lda_results(doc_term_matrix, id2word, revs, fname, num_topics=None, output=None):
-    logger_multi.info(f"{fname} started")
-    time_start = time.time()
-    lda_model = topic_analysis.get_lda_model(
-        doc_term_matrix, id2word, f'{fname}.model', num_topics)
-    logger_multi.info(f"{fname} took {time.time() - time_start} seconds to complete the model.")
-    doc_topic_tuples = topic_analysis.get_document_topics(
-        lda_model, doc_term_matrix, revs, fname)
+    try:
+        logger_multi.info(f"{fname} started")
+        time_start = time.time()
+        lda_model = topic_analysis.get_lda_model(
+            doc_term_matrix, id2word, f'{fname}.model', num_topics)
+        logger_multi.info(f"{fname} took {time.time() - time_start} seconds to complete the model.")
+        doc_topic_tuples = topic_analysis.get_document_topics(
+            lda_model, doc_term_matrix, revs, fname)
 
-    logger_multi.info('results completed. putting in queue..')
-    output.put((fname, doc_topic_tuples))
-    logger_multi.info('results sent.')
-
-    # return doc_topic_tuples
+        logger_multi.info('results completed. putting in queue..')
+        output.put((fname, doc_topic_tuples))
+        logger_multi.info('results sent.')
+        
+        return doc_topic_tuples
+    except Exception as ex:
+        logger.warning("get_lda_results failed.", exc_info=ex)
 
 
 def get_mallet_results(doc_term_matrix, id2word, revs, fname, output=None):
@@ -113,7 +119,7 @@ def run_topic_models(tokens_list, to_file=None, transformations=False, find_opti
         
         if lsi:
             if find_optimal_num_topics:
-                for num_topics in range(2, 21, 3):
+                for num_topics in range(2, 15, 3):
                     p_lsi = Process(name=f'lsi_{num_topics}', target=get_lsi_results, args=(
                         doc_term_matrix, id2word, revs, f'lsi_{num_topics}', num_topics, output))
                     processes.append(p_lsi)
@@ -136,7 +142,7 @@ def run_topic_models(tokens_list, to_file=None, transformations=False, find_opti
                 processes.append(p_lsi)
         if lda:
             if find_optimal_num_topics:
-                for num_topics in range(2, 21, 3):
+                for num_topics in range(2, 15, 3):
                     p_lda = Process(name=f'lda_{num_topics}', target=get_lda_results, args=(
                         doc_term_matrix, id2word, revs, f'lda_{num_topics}', num_topics, output))
                     processes.append(p_lda)
