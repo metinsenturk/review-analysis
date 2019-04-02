@@ -156,7 +156,6 @@ def get_document_topics(model, doc_term_matrix, revs, fname):
             j = j + len(rev)
             logger.debug(f"model: {fname} doc => i: {i} j: {j} rev => {index + 1} of {len(revs)}")
             doc_model_list = model[doc_term_matrix[i:j]]
-            logger.info(f"model: {fname} doc => i: {i} j: {j} rev => {len(doc_model_list)} rev => {len(rev)}")
             i = j
 
             # get topic prob distribution for each document in review, based on max probability
@@ -164,6 +163,45 @@ def get_document_topics(model, doc_term_matrix, revs, fname):
 
             if type(model) == LdaModel:
                 in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list, y, z in doc_model_list]
+            else:
+                in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list in doc_model_list]                
+
+            # topics
+            doc_topic_list = [topic for topic, prob in in_doc_topic_prob_list]
+            doc_topics = ",".join([str(topic) for topic in doc_topic_list])
+            doc_topic_mode = max(doc_topic_list, key=doc_topic_list.count)
+
+            results.append((doc_topic_mode, doc_topics, in_doc_topic_prob_list))
+    except Exception as ex:
+        logger.warning(f"scoring problem for {fname}: => i: {i} j: {j}", exc_info=ex)
+
+    return results
+
+
+def get_document_topics2(model, doc_term_matrix, revs, fname):
+    """ scores topics to sentences first, then picks the mode for the doc and creates mode, sentence topics, and sentence topics with probabilities. """
+    results = []
+
+    try:
+        i, j = 0, 0
+        for index, rev in enumerate(revs):
+            # get document count on each review
+            j = j + len(rev)
+            logger.debug(f"model: {fname} doc => i: {i} j: {j} rev => {index + 1} of {len(revs)}")
+            doc_model_list = model[doc_term_matrix[i:j]]
+            # logger.info(f"model: {fname} doc => i: {i} j: {j} rev => {len(doc_model_list)} rev => {len(rev)}")
+            i = j
+
+            # get topic prob distribution for each document in review, based on max probability
+            in_doc_topic_prob_list = []
+
+            if type(model) == LdaModel:
+                for sent_topic_list, y, z in doc_model_list:
+                    in_doc_topic_prob = max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0)
+                    in_doc_topic_prob_list.append(in_doc_topic_prob)
+
+                logger.info(f"rev: {len(rev)} in_doc: {len(in_doc_topic_prob)} rev_sent: {len(sent_topic_list)}")
+                # logger.info(f"{sent_topic_list}, {y}, {z}")
             else:
                 in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list in doc_model_list]                
 

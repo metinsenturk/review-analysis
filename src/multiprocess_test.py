@@ -5,21 +5,20 @@ from multiprocessing import Queue
 
 
 def func1(x, q):
-    time.sleep(10)
+    time.sleep(5)
     x = ('sfsd', 21431, [3123, 123, (23214, 2)])
     q.put(x)
 
 
 def func2(x, q):
-    time.sleep(5)
+    time.sleep(2)
     x = ('sfsd', 45343625463, [3123, [21312], 123, (23214, 2)])
     q.put(x)
 
 def func3(l, q):
     with Pool(processes=4) as pool:
-        time.sleep(5)
-        z = pool.map(runner, range(10000))
-
+        time.sleep(3)
+        z = pool.map(runner, range(3))
         pool.join()
     l.append(z)
     q.put(l)
@@ -31,23 +30,24 @@ def runner(x):
 
 
 if __name__ == "__main__":
+    # multiprocessing test
     q = Queue()
     p1 = Process(name="a", target=func1, args=((4, 2), q))
     p2 = Process(name="b", target=func2, args=([23, 12, 3], q))
-    p3 = Process(name="c", target=func3, args=([23, 12, 3], q))
+    # p3 = Process(name="c", target=func3, args=([23, 12, 3], q))
 
-    for i in [p1, p2, p3]:
+    procs = [p1, p2]
+    results = []
+    
+    for i in procs:
         i.start()
 
-    p1.join()
-    print(p1.name)
-    print(q.get())
-    # /Users/owl/.vscode/extensions/ms-python.python-2019.3.6139/pythonFiles/lib/python/ptvsd/daemon.py
-
-    p2.join()
-    print(p2.name)
-    print(q.get())
-
-    p3.join()
-    print(p3.name)
-    print(q.get())
+    while len(results) < len(procs):
+        print(f"results: {len(results)} procs: {len(procs)} cond: {len(results) < len(procs)}")
+        for proc in procs:
+            proc.join(2)
+            result = q.get()
+            results.append(result)
+            print(proc.name, result)
+        print('for loop finished')
+    print('while loop finished')

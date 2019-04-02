@@ -46,7 +46,7 @@ if __name__ == '__main__':
         # get_competitor_reviews(flags.starti, flags.endi)
         
         # read data
-        df = pd.read_csv('../data/processed/hi_rws_0001_0256_complete.csv', nrows=100)
+        df = pd.read_csv('../data/processed/hi_rws_0001_0256_complete.csv')
         logger.info("file is read.")
 
         df = utilities.fix_token_columns(df)
@@ -57,20 +57,20 @@ if __name__ == '__main__':
             to_file='hi_rws_0001_0256_topics.csv', 
             transformations=True, 
             find_optimal_num_topics=False, 
-            training=False,
-            lsi=False,
+            training=True,
+            lsi=True,
             lda=True,            
             mallet=False,
             hdp=False
         )
 
-        # run_sentiment_models(
-        #     revs_list=df.norm_tokens_doc.apply(lambda x: ' '.join(itertools.chain(*x))),
-        #     sentiment_list=df.sentiment,
-        #     to_file='hi_rws_0001_0256_sentiments.csv',
-        #     optimum=True,
-        #     sgd=True,
-        #     log=True,
-        #     mnb=True,
-        #     rdg=False # does not have predict_proba
-        # )
+        run_sentiment_models(
+            revs_list=df.norm_tokens_doc.apply(lambda x: ' '.join(itertools.chain(*x))),
+            sentiment_list=df.sentiment,
+            to_file='hi_rws_0001_0256_sentiments.csv',
+            optimum=True,
+            sgd=True,
+            log=True,
+            mnb=True,
+            rdg=False # does not have predict_proba
+        )
