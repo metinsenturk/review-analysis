@@ -182,23 +182,25 @@ def run_topic_models(tokens_list, to_file=None, transformations=False, find_opti
             logger.info("{} process is started.".format(process.name))
             process.start()
         
-        # while len(results) < len(processes):
+        alive_cnt = []
+        while len(results) < len(processes):
         # logger.info('i m here...')
-        for process in processes:                
-            process.join(5)
-            logger.info("{} process is joining..., its status is {}".format(process.name, process.is_alive()))
-            
-            result = output.get()
-            results.append(result)
-            logger.info(f"output received for {result[0]}.")
-
-            # logger.info(f"results: {len(results)} procs: {len(processes)} => {len(results) < len(processes)}")
-            process.terminate()
-            logger.info(f"{process.name} is terminating.")
+            for process in processes:                
+                process.join(5)
+                logger.info("{} process is joining..., its status is {}".format(process.name, process.is_alive()))
+                
+                if process.is_alive():
+                    alive_cnt.append(process.name)
+                    result = output.get()
+                    results.append(result)
+                    logger.info(f"output received for {result[0]}.")
+                    logger.info(f"results: {len(results)} procs: {len(processes)} => {len(results) < len(processes)}")
+                    process.terminate()
+                    logger.info(f"{process.name} is terminating.")
 
         # output.close()
         # output.join_thread()
-        
+        logger.info(f"alive counts: {alive_cnt}")
         logger.info("processeses finished.")
 
         for process in processes:
