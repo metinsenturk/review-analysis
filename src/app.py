@@ -46,7 +46,7 @@ if __name__ == '__main__':
         # get_competitor_reviews(flags.starti, flags.endi)
         
         # read data
-        df = pd.read_csv('../data/processed/hi_rws_0001_0256_complete.csv', nrows=50)
+        df = pd.read_csv('../data/processed/hi_rws_0001_0256_complete.csv')
         logger.info("file is read.")
 
         df = utilities.fix_token_columns(df)
