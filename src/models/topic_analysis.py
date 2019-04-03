@@ -1,4 +1,5 @@
 import logging
+import pickle
 import statistics
 import pandas as pd
 import numpy as np
@@ -51,21 +52,35 @@ def _save_model(model_type, model, fname):
         return None
 
 
+def _save_model2(model, name):
+    try:
+        with open(f'../model/dict_and_matrix/{name}.pkl', 'wb') as f:
+            pickle.dump(model, f)
+            logger.info(f'{name} is saved.')
+    except Exception as ex:
+        logger.warning(f"{name} could not be saved.", exc_info=ex)
+
+
 def create_doc_term_matrix(docs, tfidf=False, logentropy=False, random_projections=False):
     id2word = Dictionary(documents=docs)
+    _save_model2(id2word, 'id2word')
     doc_term_matrix = [id2word.doc2bow(doc) for doc in docs]
+    _save_model2(doc_term_matrix, 'doc_term_matrix')
 
     if random_projections:
         rp_model = RpModel(corpus=doc_term_matrix, id2word=id2word, num_topics=params['num_topics'])
         doc_term_matrix = rp_model[doc_term_matrix]
+        _save_model2(doc_term_matrix, 'doc_term_matrix_random_projections')
 
     if tfidf:
         tfidf_model = TfidfModel(id2word=id2word, corpus=doc_term_matrix, normalize=True)
         doc_term_matrix = tfidf_model[doc_term_matrix]
+        _save_model2(doc_term_matrix, 'doc_term_matrix_tfidf')
     
     if logentropy:
         log_model = LogEntropyModel(corpus=doc_term_matrix, normalize=True)
         doc_term_matrix = log_model[doc_term_matrix]
+        _save_model2(doc_term_matrix, 'doc_term_matrix_logentropy')
 
     return doc_term_matrix, id2word
 
