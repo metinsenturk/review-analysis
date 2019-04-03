@@ -6,11 +6,15 @@ __pycache__/
 # data files
 data/**/*.*
 !data/**/*.gitkeep
+data-final/
 
 # model files
+model/mallet/
 model/**/*.*
 !/model/*.gitkeep
 !model/**/*.gitkeep
+model-server/
+model-final/
 
 # notebooks .. this doesn't work :/
 .ipynb_checkpoints
