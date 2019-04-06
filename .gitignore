@@ -18,9 +18,13 @@ model-final/
 
 # notebooks .. this doesn't work :/
 .ipynb_checkpoints
+.ipynb_checkpoints/*.ipynb
 /.ipynb_checkpoints/
 */.ipynb_checkpoints/*
 notebooks/**/.ipynb_checkpoints/*
+
+# tableau temp files
+tableau/*.twbr
 
 # logs
 *.log
