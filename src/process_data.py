@@ -1,5 +1,9 @@
 from features.text_preprocessing import SpaCyProcessing, NLTKProcessing
 
+# init library
+cleanup = SpaCyProcessing()
+
+
 def textprocessing(test_reviews):
     p = NLTKProcessing(test_reviews)
 
@@ -19,9 +23,7 @@ def textprocessing(test_reviews):
 
     return(reviews1)
 
-def text_processing(text, remove_stopwords=True, remove_alpha=True, remove_punct=True, remove_pos=True, lemmatize=True, remove_short_words=True):
-    # init library
-    cleanup = SpaCyProcessing()
-    
+
+def apply_text_processing(text, remove_stopwords=True, remove_alpha=True, remove_punct=True, remove_pos=True, lemmatize=True, remove_short_words=True):
     # return cleaned version
     return cleanup.doc_sent_clean_up(text)

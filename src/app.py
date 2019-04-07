@@ -9,6 +9,7 @@ import numpy as np
 
 # local imports
 import utilities
+from process_data import apply_text_processing
 from model_data import run_topic_models, run_sentiment_models
 
 # logging init
@@ -46,17 +47,20 @@ if __name__ == '__main__':
         # get_competitor_reviews(flags.starti, flags.endi)
         
         # read data
-        df = pd.read_csv('../data/processed/hi_rws_0001_0256_complete.csv')
+        df = pd.read_csv('../data/processed/hi_rws_0001_0256_descriptive.csv', nrows=1000, memory_map=True)
         logger.info("file is read.")
 
-        df = utilities.fix_token_columns(df)
-        logger.info("file fix is completed.")
+        # cleanup & fixing
+        df['norm_tokens_doc'] = df.description.apply(lambda x: apply_text_processing(x))
+        logger.info("file cleaning is completed.")
+        # df = utilities.fix_token_columns(df)
+        # logger.info("file fix is completed.")
                 
         run_topic_models(
             tokens_list=df.norm_tokens_doc, 
             to_file='hi_rws_0001_0256_topics.csv', 
             transformations=False, 
-            find_optimal_num_topics=True, 
+            find_optimal_num_topics=False, 
             training=True,
             lsi=True,
             lda=True,            
