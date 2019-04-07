@@ -26,4 +26,6 @@ def textprocessing(test_reviews):
 
 def apply_text_processing(text, remove_stopwords=True, remove_alpha=True, remove_punct=True, remove_pos=True, lemmatize=True, remove_short_words=True):
     # return cleaned version
-    return cleanup.doc_sent_clean_up(text)
+    text_clean = cleanup.doc_sent_clean_up(text)
+    text_clean = [tuple(i) for i in text_clean]
+    return text_clean

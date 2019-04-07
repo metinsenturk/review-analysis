@@ -47,13 +47,13 @@ if __name__ == '__main__':
         # get_competitor_reviews(flags.starti, flags.endi)
         
         # read data
-        df = pd.read_csv('../data/processed/hi_rws_0001_0256_complete.csv', nrows=1000, memory_map=True)
+        df = pd.read_csv('../data/processed/hi_rws_0001_0256_complete.csv', nrows=1500, memory_map=True)
         logger.info("file is read.")
 
         # cleanup & fixing
         df['norm_tokens_doc'] = df.description.apply(lambda x: apply_text_processing(x))
         logger.info("file cleaning is completed.")
-        # df = utilities.fix_token_columns(df)
+        # df = utilities.fix_token_columns(df) # if list is dumped to a file
         # logger.info("file fix is completed.")
         
         revs_list = df.norm_tokens_doc
@@ -63,8 +63,8 @@ if __name__ == '__main__':
             revs_list=revs_list,
             docs_list=docs_list, 
             to_file='hi_rws_0001_0256_topics.csv', 
-            transformations=False, 
-            find_optimal_num_topics=False, 
+            transformations=True, 
+            find_optimal_num_topics=True, 
             training=True,
             lsi=True,
             lda=True,            

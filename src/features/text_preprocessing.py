@@ -52,15 +52,19 @@ class SpaCyProcessing:
                     if token_clean is not None:
                         sent.append(token_clean)
                 else:
-                    sent.append(token)
+                    sent.append(self._token_cleanup(token))
             else:
                 # add same sent tokens to the sent list
                 if clean_up:
                     token_clean = self._token_cleanup(token)
                     if token_clean is not None:
-                        sent.append(token_clean)
+                        sent.append(self._token_cleanup(token))
                 else:
                     sent.append(token)
+        
+        # add the last sentence to the list
+        texts.append(sent)
+
         return texts
 
 
