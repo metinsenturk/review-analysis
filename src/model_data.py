@@ -89,27 +89,31 @@ def get_hdp_results(doc_term_matrix, id2word, revs, fname, output=None):
     return doc_topic_tuples
 
 
-def run_topic_models(tokens_list, to_file=None, transformations=False, find_optimal_num_topics=False, training=False, lsi=True, lda=True, mallet=True, hdp=True):
+def run_topic_models(revs_list, docs_list, to_file=None, transformations=False, find_optimal_num_topics=False, training=False, lsi=True, lda=True, mallet=True, hdp=True):
     """ gets normalized tokens and returns topics for all algortithms. """
     
     logger.info("topic algorithms starting..")
 
     # sentences
-    revs = tokens_list
-    docs = list(itertools.chain(*revs))
+    revs = revs_list
+    docs = docs_list
     logger.info(f"number of reviews and documents => revs: {len(revs)} docs: {len(docs)}")
 
-    # topic modeling
-    doc_term_matrix, id2word = topic_analysis.create_doc_term_matrix(docs)
-    doc_term_matrix_tfidf, id2word = topic_analysis.create_doc_term_matrix(docs, tfidf=True)
-    doc_term_matrix_random_projections, id2word = topic_analysis.create_doc_term_matrix(docs, random_projections=True)
-    doc_term_matrix_logentropy, id2word = topic_analysis.create_doc_term_matrix(docs, logentropy=True)
+    # dictionary
+    id2word = topic_analysis.create_dictionary(docs)
+    
+    # doc_term_matrix
+    doc_term_matrix = topic_analysis.create_doc_term_matrix(docs, id2word)
+    doc_term_matrix_tfidf = topic_analysis.create_doc_term_matrix(docs, id2word, tfidf=True)
+    doc_term_matrix_random_projections = topic_analysis.create_doc_term_matrix(docs, id2word, random_projections=True)
+    doc_term_matrix_logentropy = topic_analysis.create_doc_term_matrix(docs, id2word, logentropy=True)
     logger.info("doc_term_matrixes and dictionaries created.")
     
     # choise of training
     topic_analysis.params['training'] = training
-    try:
-        # topic models in multiprocessing
+
+    # topic models in multiprocessing
+    try:        
         output = Queue()
         processes = []
         results = []

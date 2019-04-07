@@ -32,7 +32,8 @@ def _load_model(model_type, fname):
         elif model_type == 'hdp':
             return HdpModel.load(f'../model/mallet_model/{fname}')
     except Exception as ex:
-        logger.warning(f'{model_type} type of {fname} could not be loaded.', exc_info=ex)
+        logger.warning(
+            f'{model_type} type of {fname} could not be loaded.', exc_info=ex)
         return None
 
 
@@ -61,32 +62,38 @@ def _save_model2(model, name):
         logger.warning(f"{name} could not be saved.", exc_info=ex)
 
 
-def create_doc_term_matrix(docs, tfidf=False, logentropy=False, random_projections=False):
+def create_dictionary(docs):
     id2word = Dictionary(documents=docs)
     _save_model2(id2word, 'id2word')
+    return id2word
+
+
+def create_doc_term_matrix(docs, id2word, tfidf=False, logentropy=False, random_projections=False):
     doc_term_matrix = [id2word.doc2bow(doc) for doc in docs]
     _save_model2(doc_term_matrix, 'doc_term_matrix')
 
     if random_projections:
-        rp_model = RpModel(corpus=doc_term_matrix, id2word=id2word, num_topics=params['num_topics'])
+        rp_model = RpModel(corpus=doc_term_matrix,
+                           id2word=id2word, num_topics=params['num_topics'])
         doc_term_matrix = rp_model[doc_term_matrix]
         _save_model2(doc_term_matrix, 'doc_term_matrix_random_projections')
 
     if tfidf:
-        tfidf_model = TfidfModel(id2word=id2word, corpus=doc_term_matrix, normalize=True)
+        tfidf_model = TfidfModel(
+            id2word=id2word, corpus=doc_term_matrix, normalize=True)
         doc_term_matrix = tfidf_model[doc_term_matrix]
         _save_model2(doc_term_matrix, 'doc_term_matrix_tfidf')
-    
+
     if logentropy:
         log_model = LogEntropyModel(corpus=doc_term_matrix, normalize=True)
         doc_term_matrix = log_model[doc_term_matrix]
         _save_model2(doc_term_matrix, 'doc_term_matrix_logentropy')
 
-    return doc_term_matrix, id2word
+    return doc_term_matrix
 
 
 def get_lsi_model(doc_term_matrix, id2word, fname, num_topics=None):
-    
+
     if params['training']:
         lsi_model = LsiModel(
             corpus=doc_term_matrix,
@@ -104,12 +111,12 @@ def get_lda_model(doc_term_matrix, id2word, fname, num_topics=None):
 
     if params['training']:
         lda_model = LdaModel(
-                corpus=doc_term_matrix,
-                id2word=id2word,
-                num_topics=params['num_topics'] if num_topics is None else num_topics,
-                passes=5,            
-                per_word_topics=True
-            )
+            corpus=doc_term_matrix,
+            id2word=id2word,
+            num_topics=params['num_topics'] if num_topics is None else num_topics,
+            passes=5,
+            per_word_topics=True
+        )
         _save_model('lda', lda_model, fname=fname)
     else:
         lda_model = _load_model('lda', fname)
@@ -138,7 +145,7 @@ def get_lda_mallet_model(doc_term_matrix, id2word, fname):
 def get_hdp_model(doc_term_matrix, id2word, fname):
     if params['training']:
         hdp_model = HdpModel(
-            corpus=doc_term_matrix, 
+            corpus=doc_term_matrix,
             id2word=id2word
         )
         _save_model('hdp', hdp_model, fname=fname)
@@ -151,8 +158,8 @@ def get_hdp_model(doc_term_matrix, id2word, fname):
 def get_coherence_model(model, doc_term_matrix, id2word, revs):
 
     coh_model = CoherenceModel(
-        model=model, 
-        corpus=doc_term_matrix, 
+        model=model,
+        corpus=doc_term_matrix,
         dictionary=id2word,
         coherence='c_v'
     )
@@ -169,7 +176,8 @@ def get_document_topics(model, doc_term_matrix, revs, fname):
         for index, rev in enumerate(revs):
             # get document count on each review
             j = j + len(rev)
-            logger.debug(f"model: {fname} doc => i: {i} j: {j} rev => {index + 1} of {len(revs)}")
+            logger.debug(
+                f"model: {fname} doc => i: {i} j: {j} rev => {index + 1} of {len(revs)}")
             doc_model_list = model[doc_term_matrix[i:j]]
             i = j
 
@@ -177,18 +185,22 @@ def get_document_topics(model, doc_term_matrix, revs, fname):
             in_doc_topic_prob_list = []
 
             if type(model) == LdaModel:
-                in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list, y, z in doc_model_list]
+                in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(
+                    sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list, y, z in doc_model_list]
             else:
-                in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list in doc_model_list]                
+                in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(
+                    sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list in doc_model_list]
 
             # topics
             doc_topic_list = [topic for topic, prob in in_doc_topic_prob_list]
             doc_topics = ",".join([str(topic) for topic in doc_topic_list])
             doc_topic_mode = max(doc_topic_list, key=doc_topic_list.count)
 
-            results.append((doc_topic_mode, doc_topics, in_doc_topic_prob_list))
+            results.append(
+                (doc_topic_mode, doc_topics, in_doc_topic_prob_list))
     except Exception as ex:
-        logger.warning(f"scoring problem for {fname}: => i: {i} j: {j}", exc_info=ex)
+        logger.warning(
+            f"scoring problem for {fname}: => i: {i} j: {j}", exc_info=ex)
 
     return results
 
@@ -202,7 +214,8 @@ def get_document_topics2(model, doc_term_matrix, revs, fname):
         for index, rev in enumerate(revs):
             # get document count on each review
             j = j + len(rev)
-            logger.debug(f"model: {fname} doc => i: {i} j: {j} rev => {index + 1} of {len(revs)}")
+            logger.debug(
+                f"model: {fname} doc => i: {i} j: {j} rev => {index + 1} of {len(revs)}")
             doc_model_list = model[doc_term_matrix[i:j]]
             # logger.info(f"model: {fname} doc => i: {i} j: {j} rev => {len(doc_model_list)} rev => {len(rev)}")
             i = j
@@ -212,21 +225,26 @@ def get_document_topics2(model, doc_term_matrix, revs, fname):
 
             if type(model) == LdaModel:
                 for sent_topic_list, y, z in doc_model_list:
-                    in_doc_topic_prob = max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0)
+                    in_doc_topic_prob = max(sent_topic_list, key=lambda x: x[1]) if len(
+                        sent_topic_list) > 0 else (np.nan, 0.0)
                     in_doc_topic_prob_list.append(in_doc_topic_prob)
 
-                logger.info(f"rev: {len(rev)} in_doc: {len(in_doc_topic_prob)} rev_sent: {len(sent_topic_list)}")
+                logger.info(
+                    f"rev: {len(rev)} in_doc: {len(in_doc_topic_prob)} rev_sent: {len(sent_topic_list)}")
                 # logger.info(f"{sent_topic_list}, {y}, {z}")
             else:
-                in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list in doc_model_list]                
+                in_doc_topic_prob_list = [max(sent_topic_list, key=lambda x: x[1]) if len(
+                    sent_topic_list) > 0 else (np.nan, 0.0) for sent_topic_list in doc_model_list]
 
             # topics
             doc_topic_list = [topic for topic, prob in in_doc_topic_prob_list]
             doc_topics = ",".join([str(topic) for topic in doc_topic_list])
             doc_topic_mode = max(doc_topic_list, key=doc_topic_list.count)
 
-            results.append((doc_topic_mode, doc_topics, in_doc_topic_prob_list))
+            results.append(
+                (doc_topic_mode, doc_topics, in_doc_topic_prob_list))
     except Exception as ex:
-        logger.warning(f"scoring problem for {fname}: => i: {i} j: {j}", exc_info=ex)
+        logger.warning(
+            f"scoring problem for {fname}: => i: {i} j: {j}", exc_info=ex)
 
     return results

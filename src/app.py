@@ -47,7 +47,7 @@ if __name__ == '__main__':
         # get_competitor_reviews(flags.starti, flags.endi)
         
         # read data
-        df = pd.read_csv('../data/processed/hi_rws_0001_0256_descriptive.csv', nrows=1000, memory_map=True)
+        df = pd.read_csv('../data/processed/hi_rws_0001_0256_complete.csv', nrows=1000, memory_map=True)
         logger.info("file is read.")
 
         # cleanup & fixing
@@ -55,9 +55,13 @@ if __name__ == '__main__':
         logger.info("file cleaning is completed.")
         # df = utilities.fix_token_columns(df)
         # logger.info("file fix is completed.")
-                
+        
+        revs_list = df.norm_tokens_doc
+        docs_list = list(itertools.chain(*revs_list))
+
         run_topic_models(
-            tokens_list=df.norm_tokens_doc, 
+            revs_list=revs_list,
+            docs_list=docs_list, 
             to_file='hi_rws_0001_0256_topics.csv', 
             transformations=False, 
             find_optimal_num_topics=False, 
@@ -69,7 +73,7 @@ if __name__ == '__main__':
         )
 
         # run_sentiment_models(
-        #     revs_list=df.norm_tokens_doc.apply(lambda x: ' '.join(itertools.chain(*x))),
+        #     revs_list=revs_list.apply(lambda x: ' '.join(itertools.chain(*x))),
         #     sentiment_list=df.sentiment,
         #     to_file='hi_rws_0001_0256_sentiments.csv',
         #     optimum=True,
