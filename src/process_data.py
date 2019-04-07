@@ -1,7 +1,7 @@
-from features.text_preprocessing import preprocessing
+from features.text_preprocessing import SpaCyProcessing, NLTKProcessing
 
 def textprocessing(test_reviews):
-    p = preprocessing(test_reviews)
+    p = NLTKProcessing(test_reviews)
 
     reviews1 = []
     for review in test_reviews:
@@ -18,3 +18,10 @@ def textprocessing(test_reviews):
         reviews1.append(review)
 
     return(reviews1)
+
+def text_processing(text, remove_stopwords=True, remove_alpha=True, remove_punct=True, remove_pos=True, lemmatize=True, remove_short_words=True):
+    # init library
+    cleanup = SpaCyProcessing()
+    
+    # return cleaned version
+    return cleanup.doc_sent_clean_up(text)

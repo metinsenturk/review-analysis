@@ -1,17 +1,70 @@
 import numpy as np
 import pandas as pd
 
+import spacy
+
+from nltk.corpus import stopwords
 from nltk import word_tokenize
 from nltk import WordNetLemmatizer, PorterStemmer
 
-try:
-    from nltk.corpus import stopwords
-except:
-    nltk.download('stopwords')
-    from nltk.corpus import stopwords
+
+class SpaCyProcessing:
+    def __init__(self):
+        self.nlp = spacy.load("en_core_web_sm", disable=['ner'])
+
+    def _token_cleanup(self, token):
+        """ token cleanup. return clean token or None. """
+        removal = ['ADV', 'PRON', 'CCONJ',
+                   'PUNCT', 'PART', 'DET', 'ADP', 'SPACE']
+        if token.is_stop == False and token.is_alpha and len(token) > 3 and token.pos_ not in removal:
+            lemma = token.lemma_
+            return lemma
+
+    def doc_clean_up(self,  text):
+        """ clean up tokens by documents """
+        doc = self.nlp(text)
+        text_out = []
+
+        for token in doc:
+            token_clean = self._token_cleanup(token)
+            if token_clean is not None:
+                text_out.append(token_clean)
+        return text_out
+
+    def doc_sent_clean_up(self, text, clean_up=True):
+        """ clean up tokens by sents in documents """
+        doc = self.nlp(text)
+        texts = []
+
+        sent_current = ""
+        for token in doc:
+            # check for tokens current sent
+            if sent_current != token.sent.text:
+                # add it to texts, if it is not initially
+                if sent_current != "":
+                    texts.append(sent)
+                # update current sent index
+                sent_current = token.sent.text
+                # create sent list and add first token
+                sent = []
+                if clean_up:
+                    token_clean = self._token_cleanup(token)
+                    if token_clean is not None:
+                        sent.append(token_clean)
+                else:
+                    sent.append(token)
+            else:
+                # add same sent tokens to the sent list
+                if clean_up:
+                    token_clean = self._token_cleanup(token)
+                    if token_clean is not None:
+                        sent.append(token_clean)
+                else:
+                    sent.append(token)
+        return texts
 
 
-class preprocessing:
+class NLTKProcessing:
     def __init__(self, text_list: list):
         self.stopwords_list = stopwords.words('english')
 
