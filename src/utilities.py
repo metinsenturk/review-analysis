@@ -21,3 +21,12 @@ def fix_token_columns(df):
             logger.warning(f"fix_token_columns failed for {column}.", exc_info=ex)
     
     return df
+
+def fix_token_columns2(df):
+    """ fix column type error for pandas dataframes. """
+    try:
+        df = df.apply(lambda x: literal_eval(x))
+    except Exception as ex:
+        logger.warning(f"fix_token_columns failed.", exc_info=ex)
+    
+    return df

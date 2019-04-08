@@ -18,11 +18,15 @@ class SpaCyProcessing:
         removal = ['ADV', 'PRON', 'CCONJ',
                    'PUNCT', 'PART', 'DET', 'ADP', 'SPACE']
         if token.is_oov:
+            # app is running from src/. that is why ../data part is there.
             with open('../data/processed/out_of_vocabulary_words.csv', 'a+') as f:
                 f.write(token.text + '\n')
-        if token.is_stop == False and token.is_alpha and token.is_oov == False and len(token) > 3 and token.pos_ not in removal:
-            lemma = token.lemma_
-            return lemma
+        if token.is_stop == False and token.is_alpha and token.is_oov == False:
+            if len(token) > 3 and token.pos_ not in removal:
+                lemma = token.lemma_
+                # somehow this word shows up a lot, i am removing it 
+                if lemma != '-PRON-':
+                    return lemma
 
     def doc_clean_up(self,  text):
         """ clean up tokens by documents """
