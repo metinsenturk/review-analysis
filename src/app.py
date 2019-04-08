@@ -44,33 +44,40 @@ if __name__ == '__main__':
     flags, unparsed = parser.parse_known_args()
 
     if input("Press any key to start..") is not None:
-        # get_competitor_reviews(flags.starti, flags.endi)
-        
         # read data
-        df = pd.read_csv('../data/processed/hi_rws_0001_0256_complete.csv', nrows=1500, memory_map=True)
+        df = pd.read_csv('../data/processed/hi_rws_0001_0256_descriptive.csv', nrows=1000, memory_map=True)
         logger.info("file is read.")
 
-        # cleanup & fixing
-        df['norm_tokens_doc'] = df.description.apply(lambda x: apply_text_processing(x))
-        logger.info("file cleaning is completed.")
-        # df = utilities.fix_token_columns(df) # if list is dumped to a file
-        # logger.info("file fix is completed.")
+        # cleanup & fixing  
+        read_from_file = False
+        df['norm_tokens_doc'] = apply_text_processing(
+            revs_list=df.description,
+            to_file='hi_rws_0001_0256_processed.csv',
+            read_from_file=read_from_file,
+        )
+        logger.info("file text processing is completed.")
         
+        if read_from_file:
+            df = utilities.fix_token_columns(df)
+            logger.info("file fix is completed.")
+        
+        # topic modeling
         revs_list = df.norm_tokens_doc
         docs_list = list(itertools.chain(*revs_list))
-
-        run_topic_models(
-            revs_list=revs_list,
-            docs_list=docs_list, 
-            to_file='hi_rws_0001_0256_topics.csv', 
-            transformations=True, 
-            find_optimal_num_topics=True, 
-            training=True,
-            lsi=True,
-            lda=True,            
-            mallet=False,
-            hdp=False
-        )
+        
+        print(len(revs_list), len(docs_list))
+        # run_topic_models(
+        #     revs_list=revs_list,
+        #     docs_list=docs_list, 
+        #     to_file='hi_rws_0001_0256_topics.csv', 
+        #     transformations=False, 
+        #     find_optimal_num_topics=False, 
+        #     training=True,
+        #     lsi=True,
+        #     lda=True,            
+        #     mallet=False,
+        #     hdp=False
+        # )
 
         # run_sentiment_models(
         #     revs_list=revs_list.apply(lambda x: ' '.join(itertools.chain(*x))),

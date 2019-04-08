@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 import spacy
+import en_core_web_lg
 
 from nltk.corpus import stopwords
 from nltk import word_tokenize
@@ -10,13 +11,16 @@ from nltk import WordNetLemmatizer, PorterStemmer
 
 class SpaCyProcessing:
     def __init__(self):
-        self.nlp = spacy.load("en_core_web_sm", disable=['ner'])
+        self.nlp = en_core_web_lg.load(disable=['ner'])
 
     def _token_cleanup(self, token):
         """ token cleanup. return clean token or None. """
         removal = ['ADV', 'PRON', 'CCONJ',
                    'PUNCT', 'PART', 'DET', 'ADP', 'SPACE']
-        if token.is_stop == False and token.is_alpha and len(token) > 3 and token.pos_ not in removal:
+        if token.is_oov:
+            with open('../data/processed/out_of_vocabulary_words.csv', 'a+') as f:
+                f.write(token.text + '\n')
+        if token.is_stop == False and token.is_alpha and token.is_oov == False and len(token) > 3 and token.pos_ not in removal:
             lemma = token.lemma_
             return lemma
 
@@ -42,7 +46,8 @@ class SpaCyProcessing:
             if sent_current != token.sent.text:
                 # add it to texts, if it is not initially
                 if sent_current != "":
-                    texts.append(sent)
+                    if len(sent) > 0:
+                        texts.append(sent)
                 # update current sent index
                 sent_current = token.sent.text
                 # create sent list and add first token
@@ -52,18 +57,19 @@ class SpaCyProcessing:
                     if token_clean is not None:
                         sent.append(token_clean)
                 else:
-                    sent.append(self._token_cleanup(token))
+                    sent.append(token)
             else:
                 # add same sent tokens to the sent list
                 if clean_up:
                     token_clean = self._token_cleanup(token)
                     if token_clean is not None:
-                        sent.append(self._token_cleanup(token))
+                        sent.append(token_clean)
                 else:
                     sent.append(token)
         
         # add the last sentence to the list
-        texts.append(sent)
+        if len(sent) > 0:
+            texts.append(sent)
 
         return texts
 
