@@ -10,3 +10,7 @@ install_mallet:
 	git clone https://github.com/mimno/Mallet.git model/mallet
 	cd model/mallet
 	ant
+
+install_spacy_requirements:
+	python3 -m spacy download en_core_web_sm
+	python3 -m spacy download en_core_web_lg

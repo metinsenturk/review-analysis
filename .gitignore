@@ -7,6 +7,7 @@ __pycache__/
 data/**/*.*
 !data/**/*.gitkeep
 data-final/
+data-server/
 
 # model files
 model/mallet/
