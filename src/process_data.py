@@ -31,7 +31,7 @@ def textprocessing(test_reviews):
 
 def apply_text_processing(revs_list, to_file=None, read_from_file=False, nrows=None, remove_stopwords=True, remove_alpha=True, remove_punct=True, remove_pos=True, lemmatize=True, remove_short_words=True):
     
-    df_series = revs_list
+    df_series = revs_list.description
 
     # read or create file after preprocessing
     if read_from_file is False:
@@ -49,4 +49,9 @@ def apply_text_processing(revs_list, to_file=None, read_from_file=False, nrows=N
     df_dump = df_dump.drop(df_to_be_dropped.index, axis=0)
     logger.info(f"file empty rows removed. the shape of the file is {df_dump.shape}.")
 
-    return df_dump
+    # temp: remove all bad indexes from df.
+    revs_list = revs_list.drop(df_to_be_dropped.index, axis=0)
+    revs_list['norm_tokens_doc'] = df_dump
+    logger.info(f"return dataframe constructed. the shape is {revs_list.shape}.")
+
+    return revs_list

@@ -45,17 +45,18 @@ if __name__ == '__main__':
 
     if input("Press any key to start..") is not None:
         # read data
-        df = pd.read_csv('../data/processed/hi_rws_0001_0256_descriptive.csv', nrows=None, memory_map=True)
+        df = pd.read_csv('../data/processed/hi_rws_0001_0256_complete.csv', nrows=None, memory_map=True)
         logger.info(f"file is read. the shape of the file is {df.shape}.")
 
         # cleanup & fixing  
         # df['norm_tokens_doc']
-        revs_list = apply_text_processing(
-            revs_list=df.description,
+        df = apply_text_processing(
+            revs_list=df,
             to_file='hi_rws_0001_0256_processed.csv',
             read_from_file=False,
             nrows=None
         )
+        revs_list = df.norm_tokens_doc
         docs_list = list(itertools.chain(*revs_list))
         logger.info("file text processing is completed.")        
         
@@ -65,7 +66,7 @@ if __name__ == '__main__':
             docs_list=docs_list, 
             to_file='hi_rws_0001_0256_topics.csv', 
             transformations=True, 
-            find_optimal_num_topics=False, 
+            find_optimal_num_topics=True, 
             training=True,
             lsi=True,
             lda=True,            
@@ -73,13 +74,14 @@ if __name__ == '__main__':
             hdp=False
         )
 
-        # run_sentiment_models(
-        #     revs_list=revs_list.apply(lambda x: ' '.join(itertools.chain(*x))),
-        #     sentiment_list=df.sentiment,
-        #     to_file='hi_rws_0001_0256_sentiments.csv',
-        #     optimum=True,
-        #     sgd=True,
-        #     log=True,
-        #     mnb=True,
-        #     rdg=False # does not have predict_proba
-        # )
+        # sentiment modeling
+        run_sentiment_models(
+            revs_list=revs_list.apply(lambda x: ' '.join(itertools.chain(*x))),
+            sentiment_list=df.sentiment,
+            to_file='hi_rws_0001_0256_sentiments.csv',
+            optimum=True,
+            sgd=True,
+            log=True,
+            mnb=True,
+            rdg=False # does not have predict_proba
+        )
