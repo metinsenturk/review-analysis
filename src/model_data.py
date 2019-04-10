@@ -24,7 +24,7 @@ def get_lsi_results(doc_term_matrix, id2word, revs, fname, num_topics= None, out
     try:
         logger_multi.info(f"{fname} started")
         time_start = time.time()
-        lsi_model = topic_analysis.get_lsi_model2(
+        lsi_model = topic_analysis.get_lsi_model(
             doc_term_matrix, id2word, f'{fname}.model', num_topics)
         logger_multi.info(f"{fname} took {time.time() - time_start} seconds to complete the model.")
         doc_topic_tuples = topic_analysis.get_document_topics(
@@ -43,7 +43,7 @@ def get_lda_results(doc_term_matrix, id2word, revs, fname, num_topics=None, outp
     try:
         logger_multi.info(f"{fname} started")
         time_start = time.time()
-        lda_model = topic_analysis.get_lda_model2(
+        lda_model = topic_analysis.get_lda_model(
             doc_term_matrix, id2word, f'{fname}.model', num_topics)
         logger_multi.info(f"{fname} took {time.time() - time_start} seconds to complete the model.")
         doc_topic_tuples = topic_analysis.get_document_topics(
@@ -159,15 +159,15 @@ def run_topic_models(revs_list, docs_list, to_file=None, transformations=False, 
             if transformations:
                 p_lda = Process(name='lda_tfidf', target=get_lda_results, args=(
                     doc_term_matrix_tfidf, id2word, revs, 'lda_tfidf', None, output))
-                # processes.append(p_lda) # TODO: BUG - Does not complete, app frozen.
+                processes.append(p_lda)
 
                 p_lda = Process(name='lda_logentropy', target=get_lda_results, args=(
                     doc_term_matrix_logentropy, id2word, revs, 'lda_logentropy', None, output))
-                # processes.append(p_lda) # TODO: BUG in here. Does not complete, app frozen. 
+                processes.append(p_lda) 
 
                 p_lda = Process(name='lda_random_projections', target=get_lda_results, args=(
                     doc_term_matrix_random_projections, id2word, revs, 'lda_random_projections', None, output))
-                # processes.append(p_lda) # TODO: BUG in here: Message: RuntimeWarning: invalid value encountered in multiply gammad = self.alpha + expElogthetad * np.dot(cts / phinorm, expElogbetad.T)
+                # processes.append(p_lda) # TODO: BUG in here: Message: RuntimeWarning: invalid value encountered in multiply gammad = self.alpha + expElogthetad * np.dot(cts / phinorm, expElogbetad.T)
         if mallet:    
             p_mallet = Process(name='mallet', target=get_mallet_results, args=(
                 doc_term_matrix, id2word, revs, 'mallet', output))

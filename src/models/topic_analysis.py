@@ -151,13 +151,11 @@ def get_lda_model2(doc_term_matrix, id2word, fname, num_topics=None):
             corpus=doc_term_matrix,
             id2word=id2word,
             num_topics=params['num_topics'] if num_topics is None else num_topics,
-            chunksize=5000,
-            passes=50,
-            decay=0.7,
+            chunksize=3000,
+            passes=20,
             alpha='auto',
-            eta='auto',
+            # eta='auto',
             iterations=100,
-            minimum_phi_value=0.02,
             per_word_topics=True
         )
         _save_model('lda', lda_model, fname=fname)

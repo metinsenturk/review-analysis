@@ -66,20 +66,20 @@ if __name__ == '__main__':
             docs_list=docs_list, 
             to_file='hi_rws_0001_0256_topics.csv', 
             transformations=True, 
-            find_optimal_num_topics=True, 
+            find_optimal_num_topics=False, 
             training=True,
-            lsi=True,
+            lsi=False,
             lda=True,            
             mallet=False
         )
 
-        sentiment modeling
-        run_sentiment_models(
-            revs_list=revs_list.apply(lambda x: ' '.join(itertools.chain(*x))),
-            sentiment_list=df.sentiment,
-            to_file='hi_rws_0001_0256_sentiments.csv',
-            optimum=True,
-            sgd=True,
-            log=True,
-            mnb=True,
-        )
+        # sentiment modeling
+        # run_sentiment_models(
+        #     revs_list=revs_list.apply(lambda x: ' '.join(itertools.chain(*x))),
+        #     sentiment_list=df.sentiment,
+        #     to_file='hi_rws_0001_0256_sentiments.csv',
+        #     optimum=True,
+        #     sgd=True,
+        #     log=True,
+        #     mnb=True,
+        # )
