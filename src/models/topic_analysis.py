@@ -64,6 +64,7 @@ def _save_model2(model, name):
 
 def create_dictionary(docs):
     id2word = Dictionary(documents=docs)
+    id2word.filter_extremes(no_below=10, no_above=0.3)
     _save_model2(id2word, 'id2word')
     return id2word
 
