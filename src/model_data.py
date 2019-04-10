@@ -24,7 +24,7 @@ def get_lsi_results(doc_term_matrix, id2word, revs, fname, num_topics= None, out
     try:
         logger_multi.info(f"{fname} started")
         time_start = time.time()
-        lsi_model = topic_analysis.get_lsi_model(
+        lsi_model = topic_analysis.get_lsi_model2(
             doc_term_matrix, id2word, f'{fname}.model', num_topics)
         logger_multi.info(f"{fname} took {time.time() - time_start} seconds to complete the model.")
         doc_topic_tuples = topic_analysis.get_document_topics(
@@ -43,7 +43,7 @@ def get_lda_results(doc_term_matrix, id2word, revs, fname, num_topics=None, outp
     try:
         logger_multi.info(f"{fname} started")
         time_start = time.time()
-        lda_model = topic_analysis.get_lda_model(
+        lda_model = topic_analysis.get_lda_model2(
             doc_term_matrix, id2word, f'{fname}.model', num_topics)
         logger_multi.info(f"{fname} took {time.time() - time_start} seconds to complete the model.")
         doc_topic_tuples = topic_analysis.get_document_topics(
@@ -74,6 +74,7 @@ def get_mallet_results(doc_term_matrix, id2word, revs, fname, output=None):
     return doc_topic_tuples
 
 def get_hdp_results(doc_term_matrix, id2word, revs, fname, output=None):
+    """ This is buggy. When it runs, it says likelihood is decreasing! """
     logger_multi.info(f"{fname} started")
     time_start = time.time()
     mallet_model = topic_analysis.get_hdp_model(
@@ -89,7 +90,7 @@ def get_hdp_results(doc_term_matrix, id2word, revs, fname, output=None):
     return doc_topic_tuples
 
 
-def run_topic_models(revs_list, docs_list, to_file=None, transformations=False, find_optimal_num_topics=False, training=False, lsi=True, lda=True, mallet=True, hdp=True):
+def run_topic_models(revs_list, docs_list, to_file=None, transformations=False, find_optimal_num_topics=False, training=False, lsi=True, lda=True, mallet=True, hdp=False):
     """ gets normalized tokens and returns topics for all algortithms. """
     
     logger.info("topic algorithms starting..")
@@ -239,7 +240,7 @@ def run_topic_models(revs_list, docs_list, to_file=None, transformations=False, 
     return df_topics
 
 
-def run_sentiment_models(revs_list, sentiment_list, to_file, optimum=False, sgd=True, log=True, mnb=True, rdg=True):
+def run_sentiment_models(revs_list, sentiment_list, to_file, optimum=False, sgd=True, log=True, mnb=True, rdg=False):
     
     logger.info("sentiment algorithms starting..")
 

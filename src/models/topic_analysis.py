@@ -107,6 +107,26 @@ def get_lsi_model(doc_term_matrix, id2word, fname, num_topics=None):
     return lsi_model
 
 
+def get_lsi_model2(doc_term_matrix, id2word, fname, num_topics=None):
+
+    if params['training']:
+        lsi_model = LsiModel(
+            corpus=doc_term_matrix,
+            id2word=id2word,
+            chunksize=5000,
+            decay=0.7,
+            onepass=False,
+            power_iters=10,
+            extra_samples=1000,
+            num_topics=params['num_topics'] if num_topics is None else num_topics
+        )
+        _save_model('lsi', lsi_model, fname)
+    else:
+        lsi_model = _load_model('lsi', fname)
+
+    return lsi_model
+
+
 def get_lda_model(doc_term_matrix, id2word, fname, num_topics=None):
 
     if params['training']:
@@ -115,6 +135,29 @@ def get_lda_model(doc_term_matrix, id2word, fname, num_topics=None):
             id2word=id2word,
             num_topics=params['num_topics'] if num_topics is None else num_topics,
             passes=5,
+            per_word_topics=True
+        )
+        _save_model('lda', lda_model, fname=fname)
+    else:
+        lda_model = _load_model('lda', fname)
+
+    return lda_model
+
+
+def get_lda_model2(doc_term_matrix, id2word, fname, num_topics=None):
+
+    if params['training']:
+        lda_model = LdaModel(
+            corpus=doc_term_matrix,
+            id2word=id2word,
+            num_topics=params['num_topics'] if num_topics is None else num_topics,
+            chunksize=5000,
+            passes=100,
+            decay=0.7,
+            alpha='auto',
+            eta='auto',
+            iterations=100,
+            minimum_phi_value=0.02,
             per_word_topics=True
         )
         _save_model('lda', lda_model, fname=fname)
@@ -146,7 +189,13 @@ def get_hdp_model(doc_term_matrix, id2word, fname):
     if params['training']:
         hdp_model = HdpModel(
             corpus=doc_term_matrix,
-            id2word=id2word
+            id2word=id2word,
+            max_chunks=10000,
+            chunksize=2000,
+            kappa=0.6,
+            tau=32.0,
+            eta=0.05,
+            
         )
         _save_model('hdp', hdp_model, fname=fname)
     else:
