@@ -152,7 +152,7 @@ def get_lda_model2(doc_term_matrix, id2word, fname, num_topics=None):
             id2word=id2word,
             num_topics=params['num_topics'] if num_topics is None else num_topics,
             chunksize=5000,
-            passes=100,
+            passes=50,
             decay=0.7,
             alpha='auto',
             eta='auto',
@@ -195,7 +195,7 @@ def get_hdp_model(doc_term_matrix, id2word, fname):
             kappa=0.6,
             tau=32.0,
             eta=0.05,
-            
+
         )
         _save_model('hdp', hdp_model, fname=fname)
     else:

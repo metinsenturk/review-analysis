@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     if input("Press any key to start..") is not None:
         # read data
-        df = pd.read_csv('../data/processed/hi_rws_0001_0256_descriptive.csv', nrows=1000, memory_map=True)
+        df = pd.read_csv('../data/processed/hi_rws_0001_0256_descriptive.csv', nrows=None, memory_map=True)
         logger.info(f"file is read. the shape of the file is {df.shape}.")
 
         # cleanup & fixing  
@@ -54,7 +54,7 @@ if __name__ == '__main__':
             revs_list=df,
             to_file='hi_rws_0001_0256_processed.csv',
             read_from_file=True,
-            nrows=1000
+            nrows=None
         )
         revs_list = df.norm_tokens_doc
         docs_list = list(itertools.chain(*revs_list))
@@ -73,13 +73,13 @@ if __name__ == '__main__':
             mallet=False
         )
 
-        # sentiment modeling
-        # run_sentiment_models(
-        #     revs_list=revs_list.apply(lambda x: ' '.join(itertools.chain(*x))),
-        #     sentiment_list=df.sentiment,
-        #     to_file='hi_rws_0001_0256_sentiments.csv',
-        #     optimum=True,
-        #     sgd=True,
-        #     log=True,
-        #     mnb=True,
-        # )
+        sentiment modeling
+        run_sentiment_models(
+            revs_list=revs_list.apply(lambda x: ' '.join(itertools.chain(*x))),
+            sentiment_list=df.sentiment,
+            to_file='hi_rws_0001_0256_sentiments.csv',
+            optimum=True,
+            sgd=True,
+            log=True,
+            mnb=True,
+        )
