@@ -2,8 +2,7 @@
 
 # get model directory -- method 1
 # scp -r msenturk@dsl.saintpeters.edu:/home/msenturk/review-analysis/model/ ../model_server/
-rsync -auv --exclude mallet/ msenturk@dsl.saintpeters.edu:/home/msenturk/review-analysis/model/ ../model-server/
-
+rsync -av --exclude mallet/ msenturk@dsl.saintpeters.edu:/home/msenturk/review-analysis/model/ ../model-server/
 rsync -av msenturk@dsl.saintpeters.edu:/home/msenturk/review-analysis/data/ ../data-server/
 
 # copy final models into main model directory for analysis
@@ -17,6 +16,9 @@ scp msenturk@dsl.saintpeters.edu:/home/msenturk/review-analysis/data/processed/o
 
 # get sentiments results file
 scp msenturk@dsl.saintpeters.edu:/home/msenturk/review-analysis/data/processed/hi_rws_0001_0256_sentiments_backup.csv ../data/processed/hi_rws_0001_0256_sentiments_backup.csv
+
+# sent data file
+scp ../data/processed/hi_rws_0001_0256_descriptive.csv msenturk@dsl.saintpeters.edu:/home/msenturk/review-analysis/data/processed/hi_rws_0001_0256_descriptive.csv
 
 
 # get logs file

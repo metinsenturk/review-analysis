@@ -17,6 +17,9 @@ model/**/*.*
 model-server/
 model-final/
 
+# archive
+archive/
+
 # notebooks .. this doesn't work :/
 .ipynb_checkpoints
 .ipynb_checkpoints/*.ipynb
