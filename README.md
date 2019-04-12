@@ -6,6 +6,8 @@ In this project, we are observing the business in terms of reviews. We use natur
 
 ## Process Flow
 
+Reviews by its raw form is not useful since it contains a lot noise (unimportant words such as 'are', 'the', 'by', etc.). Therefore, the reviews first processed by using NLTK and SpaCy libraries, then using **sklearn** and **gensim** topic and sentmiment algorithms applied to find out a topic and sentiment for each review. The methodology followed in this project is as following.
+
 ### Data Preprocessing
 
 Data processing is essential part of the further analysis. In this project, the processing is implemented by using two main libraries with similar approaches. SpaCy and NLTK's sentnce classifiers are used along with other features.
