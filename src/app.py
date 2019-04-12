@@ -74,12 +74,12 @@ if __name__ == '__main__':
         )
 
         # sentiment modeling
-        # run_sentiment_models(
-        #     revs_list=revs_list.apply(lambda x: ' '.join(itertools.chain(*x))),
-        #     sentiment_list=df.sentiment,
-        #     to_file='hi_rws_0001_0256_sentiments.csv',
-        #     optimum=True,
-        #     sgd=True,
-        #     log=True,
-        #     mnb=True,
-        # )
+        run_sentiment_models(
+            revs_list=revs_list.apply(lambda x: ' '.join(itertools.chain(*x))),
+            sentiment_list=df.sentiment,
+            to_file='hi_rws_0001_0256_sentiments.csv',
+            optimum=True,
+            sgd=True,
+            log=True,
+            mnb=True,
+        )
