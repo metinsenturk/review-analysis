@@ -1,4 +1,4 @@
-:ok_hand: # Review Analysis Exploration :heart_eyes::fire:
+# :ok_hand: Review Analysis Exploration :heart_eyes::fire:
 
 Reviews are important aspect of a business. Customers leave a review to comment and share their point of view of the business in terms of their observiations on business's channels such as staffing, quality of service, ambience, customer service, and so on.
 
