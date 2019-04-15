@@ -122,6 +122,13 @@ For sentiment modeling, instead of classification of reviews, a clustering appro
 
 ### Todo Lists
 
+### 0.1.0 Todo List
+
+- [ ] Make project installable and rename src with module_name.
+- [ ] Create config file and let the user/ application read/ write from that YAML/ JSON file.
+- [ ] Update scrapper with user controlled code.
+- [ ] Config options such as, output folder, yelp api_key, default parameters such as number of businesses, etc.
+
 ### 0.0.9 Todo List
 
 - [x] Gathering in ```app.py``` from strach to final dataset.
