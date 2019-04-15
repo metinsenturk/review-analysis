@@ -26,9 +26,9 @@ For SpaCy, SpaCy's english mult-task CNN trained model is used. More information
 
 ### Modeling
 
-We trained a topic and a sentiment classifier by using most popular algorithms. For topic modeling, sentences are considered to be the documents. Therefore, each review is divided into seperate sentences during training process, and after training they reconstructed into the reviews back. This way, we aimed to capture multiple topics that a reviewer might be covering in the review. 
+I trained a topic and a sentiment classifier by using most popular algorithms. For topic modeling, sentences are considered to be the documents. Therefore, each review is divided into seperate sentences during training process, and after training they reconstructed into the reviews back. This way, I aimed to capture multiple topics that a reviewer might be covering in the review. 
 
-The following algorithms are used for topic modeling.
+The following algorithms are used for topic modeling. For MALLET, java based statistical package for natural language processing is used. More information about MALLET can be found in [here.](http://mallet.cs.umass.edu). All other algorithms are used from [gensim](https://radimrehurek.com/gensim/apiref.html) package.
 
 - Latent Semantic Indexing (LSI)
 - Latent Dirichlet Allocation (LDA)
