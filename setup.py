@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages, find_namespace_packages
+from setuptools import setup, find_packages
 
 def readme():
     with open('README.md') as f:
@@ -18,8 +18,7 @@ setup(
    author='Metin Senturk',
    author_email='metinsenturk@me.com',
    packages=find_packages(),
-   package_dir={'review-analysis':'src'},
    include_package_data = False,
-   dependency_links=['https://github.com/mimno/Mallet/archive/v2.0.8RC3.zip'],
+   dependency_links=[],
    install_requires=requirements()
 )

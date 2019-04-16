@@ -8,9 +8,9 @@ import pandas as pd
 import numpy as np
 
 # local imports
-import utilities
-from process_data import apply_text_processing
-from model_data import run_topic_models, run_sentiment_models
+from . import utilities
+from .process_data import apply_text_processing
+from .model_data import run_topic_models, run_sentiment_models
 
 # logging init
 logging.basicConfig(
