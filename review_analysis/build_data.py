@@ -1,7 +1,7 @@
 import logging
 
-from .data import folder_paths
-from .data.data_scrapper import yelp_branches, scrappers
+from data import folder_paths
+from data.data_scrapper import yelp_branches, scrappers
 
 logger = logging.getLogger()
 

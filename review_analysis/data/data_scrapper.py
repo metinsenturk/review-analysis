@@ -13,7 +13,7 @@ import requests
 import pandas as pd
 import numpy as np
 from yelpapi import YelpAPI
-from twitter import Twitter, OAuth
+# from twitter import Twitter, OAuth
 from searchtweets import load_credentials, ResultStream, gen_rule_payload
 from bs4 import BeautifulSoup
 
@@ -52,19 +52,19 @@ twitter_users = [
     'LeilanisMaui'
 ]
 
+data_path = ".././data/raw"
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-hdlr = logging.FileHandler("../../data/logs/logs_scrapper.log")
+hdlr = logging.FileHandler(f"{data_path}/logs_scrapper.log")
 hdlr.setFormatter(formatter)
 logger.addHandler(hdlr)
 
 handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.INFO)
 logger.addHandler(handler)
-
-data_path = "././data/raw"
 
 yelp_branches = [
     'kimos-maui-lahaina',
@@ -82,7 +82,6 @@ yelp_branches = [
 ]
 
 class scrappers:
-    data_path = "././data/raw"
     
     def __init__(self):
         __dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -90,12 +89,12 @@ class scrappers:
         self.twitter_premium_api = load_credentials(
             filename="{}/{}".format(__dir_path,"twitter_keys.yaml"),
             yaml_key="search_tweets_api_30day")
-        self.twitter_api = Twitter(auth=OAuth(
-            consumer_key=credentials['twitter']['consumer_key'],
-            consumer_secret=credentials['twitter']['consumer_secret'],
-            token=credentials['twitter']['access_token_key'],
-            token_secret=credentials['twitter']['access_token_secret']
-        ))
+        # self.twitter_api = Twitter(auth=OAuth(
+        #     consumer_key=credentials['twitter']['consumer_key'],
+        #     consumer_secret=credentials['twitter']['consumer_secret'],
+        #     token=credentials['twitter']['access_token_key'],
+        #     token_secret=credentials['twitter']['access_token_secret']
+        # ))
         self.yelp_api = YelpAPI(credentials['yelp']['api_key'])
         self.__data_path = "../data/raw"
         logger.info("initiation started.")
