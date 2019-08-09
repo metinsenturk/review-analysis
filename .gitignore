@@ -2,7 +2,6 @@
 .vscode/
 __pycache__/
 .ipynb_checkpoints
-review_analysis.egg-info/
 
 # data files
 data/**/*.*

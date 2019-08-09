@@ -1,7 +1,7 @@
 import logging
 import pandas as pd
-import utilities
-from features.text_preprocessing import SpaCyProcessing, NLTKProcessing
+from . import utilities
+from .features.text_preprocessing import SpaCyProcessing, NLTKProcessing
 
 #logger
 logger = logging.getLogger(__name__)

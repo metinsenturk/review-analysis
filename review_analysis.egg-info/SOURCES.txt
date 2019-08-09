@@ -3,7 +3,6 @@ setup.py
 review_analysis/__init__.py
 review_analysis/app.py
 review_analysis/build_data.py
-review_analysis/config.py
 review_analysis/model_data.py
 review_analysis/multiprocess_test.py
 review_analysis/process_data.py
