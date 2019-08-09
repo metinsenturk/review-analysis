@@ -9,8 +9,8 @@ from multiprocessing.context import Process
 import pandas as pd
 import numpy as np
 
-from .models import topic_analysis
-from .models import sentiment_analysis
+from models import topic_analysis
+from models import sentiment_analysis
 
 # log configuration
 logger = logging.getLogger(__name__)
